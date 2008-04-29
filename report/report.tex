@@ -12,7 +12,7 @@
 %\geometry{landscape}                % Activate for for rotated page geometry
 %\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}
-\usepackage{amssymb}
+\usepackage{amsmath, amssymb}
 
 \usepackage{wrapfig}
 \usepackage{float}
@@ -224,6 +224,30 @@ current stock price and a time to maturity $T = \mathcal{T} - t$ where $t$ is
 the time elapsed since the start of the fund. To finance the purchase of the
 options some stocks are sold. This way no money has to be injected in the
 fund.
+
+\subsection{Portfolio Readjustment}
+When the stock price is passed the level the portfolio has to be readjusted.
+This is done by selling the put options in the portfolio and buying new ones.
+The purchase of the new options has to be financed by the stocks currently in
+the portfolio. Let $V_t$ be the value of the current options which will be sold.
+Let $S_t$ denote the stock price at time $t$ and $P$ the premium of the put
+option with $K = S_t$. Let $\beta$ denote the number of stocks which have to
+be sold to finance the purchase of options. Let $\alpha$ denote the number of
+options to buy and $Q_t$ the number of stocks currently in the portfolio.
+Then we have:
+\begin{equation}
+\alpha P = \beta S_t + V_t
+\end{equation}
+since the purchase has to be financed with the stocks. However only $\alpha =
+Q_t - \beta$ options have to be bought since a number of shares will be sold.
+This gives:
+\begin{align}
+\alpha P = (Q_t - \alpha)S_t + V_t\\
+\alpha P = Q_tS_t-\alpha S_t + V_t\\
+\alpha P + \alpha S_t = Q_t S_t + V_t\\
+\alpha = \frac{Q_t S_t + V_t}{P + S_t}
+\end{align}
+
 
 
 \subsection{Black-Scholes}
