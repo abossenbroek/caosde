@@ -6,9 +6,9 @@
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 
-\documentclass[11pt]{report}
-\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
-\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\documentclass[11pt]{article}
+\usepackage[a4paper]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
 %\geometry{landscape}                % Activate for for rotated page geometry
 %\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}
@@ -24,12 +24,12 @@
 % To experiment, open /Applications/Font Book to examine the fonts provided on Mac OS X,
 % and change "Hoefler Text" to any of these choices.
 
-\usepackage{fontspec,xltxtra,xunicode}
-\defaultfontfeatures{Mapping=tex-text}
-\setromanfont[Mapping=tex-text]{Hoefler Text}
-\setsansfont[Scale=MatchLowercase,Mapping=tex-text]{Gill Sans}
-\setmonofont[Scale=MatchLowercase]{Andale Mono}
-
+%\usepackage{fontspec,xltxtra,xunicode}
+%\defaultfontfeatures{Mapping=tex-text}
+%\setromanfont[Mapping=tex-text]{Hoefler Text}
+%\setsansfont[Scale=MatchLowercase,Mapping=tex-text]{Gill Sans}
+%\setmonofont[Scale=MatchLowercase]{Andale Mono}
+%
 \title{A Model for the Stock Price with Stochastic and Past Dependent Volatility}
 \author{Besiana Rexhepi}
 %\date{}                                           % Activate to display a given date or no date
@@ -66,7 +66,8 @@ $W_t^1$, $W_t^2$ are independent Wiener processes (under probability measure $P$
  $\xi_t$ is the average volatility of the stock price.
 \end{itemize}
 \paragraph{}
-From (1) it is clear that the stock process $S_t$ follows a generalized Brownian Motion with non-constant drift and volatility.\\
+From (1) it is clear that the stock process $S_t$ follows a generalized
+Brownian Motion with non-constant drift and volatility.\\
 The process $\sigma_t$ is interpreted as the instantaneous volatility of the stock and captures the \textit{mean reverting} behavior of the volatility: It is disturbed by external noise with an intensity parameter $p$ and at the same time pulled back to the average volatility, the $\xi_t$ process.
 \newline
 The parameter $\alpha$ measures the strength of the past-dependence of the average volatility.
@@ -209,22 +210,45 @@ In the weak sense, both methods have the same order of convergence equal to $1$.
 \end{figure}
 \clearpage
 
-\section{Pricing a Put Option on a Stock that Follows Model (1)}
 
-A European put option is the right to sell the share at time $T$>$0$ for a price $K$. It is assumed that Black Scholes formulas can be used to determine the price of a put option. 
-We consider a level-click fund where \textbf{we buy put options at the money with T = 5 years to expiration, to protect our shares}\footnote{Here I am confused:\\
-Suppose the share price is $S = 50$, the interest rate is $r = 0.05$, the volatility is $0.3$, expiration time is $T = 5$ years and strike is $K = 50$. \\Say I have $20$ shares and I am willing to buy $x$ number of at-the-money puts to protect my shares. \\I can use the Black Scholes to find the price of such a put, in this case it is: $p = 6.9$ \$.\\\\
-My question is: How do I find the number $x$?\\\\
-Suppose $x = x_0$ and the price of the put is $p = p_0$, then I would need $x_0 \times p_0$ dollars to create the portfolio. Then this amount of money should remain constant during the $5$ years.
-}.
-\\
-If the shares have increased by $l = 10$\%, we sell the put options and a few shares and buy new put options at the money with T = 5 years to expiration. The total amount of money should remain constant.
+\section{Level-Click Fund}
+We construct a fund which consists of a portfolio of stocks and put options.
+The initial portfolio consists of an equal number of shares and put options
+where the put options have a strike price ($K$) equal to the stock price
+($S_0$). The put options have a time to maturity of $T = \mathcal{T}$ where
+$\mathcal{T}$ is the life time of the fund. The level-click fund strategy
+consists of selling the put options whenever the stock price is a level $l$
+larger than the strike price of the options in the portfolio. Once the put
+options are sold new put options are bought with a strike price equal to the
+current stock price and a time to maturity $T = \mathcal{T} - t$ where $t$ is
+the time elapsed since the start of the fund. To finance the purchase of the
+options some stocks are sold. This way no money has to be injected in the
+fund.
+
+\subsection{Black-Scholes}
+
+\subsection{Stochastic Volatility}
+
+\subsection{Comparison}
+
+
+\subsection{Assignment}
+If the shares have increased by $l = 10$\%, we sell the put options and a few
+shares and buy new put options at the money with T = 5 years to expiration.
+The total amount of money should remain constant.
 
 \begin{itemize}
 \item
-Assume that the BS model is a realistic model for the stock price. Approximate by simulations the probability distribution of the value of the portfolio (shares + put options) after 5 years. Discuss the influence of the percentage $l$.
+Assume that the BS model is a realistic model for the stock price. Approximate
+by simulations the probability distribution of the value of the portfolio
+(shares + put options) after 5 years. Discuss the influence of the percentage
+$l$.
 \item
-Now assume that the model ($1$) is the correct model for the stock price. The options however are still available on the market for the Black Scholes prices. Approximate again by simulations the probability distribution of the value of the portfolio after 5 years. How can you gain money with this knowledge?
+Now assume that the model ($1$) is the correct model for the stock price. The
+options however are still available on the market for the Black Scholes
+prices. Approximate again by simulations the probability distribution of the
+value of the portfolio after 5 years. How can you gain money with this
+knowledge?
 \end{itemize}
 %\bibliographystyle{plain}  % other styles: abbrv, alpha, astron ...
 %\addcontentsline{toc}{section}{References}
@@ -234,3 +258,5 @@ Now assume that the model ($1$) is the correct model for the stock price. The op
                            % bibtex bibfile (NO .bib extension in the
                            % command)
 \end{document}  
+
+% vim: spell spelllang=en
