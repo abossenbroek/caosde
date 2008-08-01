@@ -1,4 +1,6 @@
-function [stockAvg, volAvg, stockPaths, volPaths, xiPaths] = Euler(randstate, samples, Dt, sigma0, S0, xi0, mu, p, alpha, T)
+function [stockAvg, volAvg, stockPaths, volPaths, xiPaths] = NumWrapper...
+   (randstate, samples, Dt, sigma0, S0, xi0, mu, p, alpha, T, ...
+      numMethod)
 
 % Set the state of the random number generator.
 randn('state', randstate);
@@ -6,6 +8,12 @@ randn('state', randstate);
 % Determine the number of steps which will have to be simulated.
 N = T / Dt;
 
+if strcmp(numMethod, 'Euler')
+   numMethodStock = @(stock, vol, xi, mu, Dt, phiStock)...
+      EulerStock(stock, vol, xi, mu, Dt, phiStock);
+   numMethodVol   = @(stock, vol, xi, p, Dt, phiVol)...
+      EulerVol(stock, vol, xi, p, Dt, phiVol);
+end
 
 % Create a matrix which will hold all the paths.
 stockPaths = zeros(samples, N);
@@ -32,7 +40,8 @@ for i = 1 : samples
      xit = xiPaths(i, j - 1);
      stockt = stockPaths(i, j - 1);
      % Compute the approximation of the volatility using the Euler method.
-     volPaths(i, j) = volt - (volt - xit) * Dt + p * volt * phiVol(j - 1);
+     volPaths(i, j) = numMethodVol(stockPaths(i, j - 1), ...
+         volPaths(i, j - 1), xiPaths(i, j - 1), p, Dt, phiVol(j - 1));
      % Compute the approximation of the xi using Runge-Kutta fourth order
      % method.
      k1 = 1 / alpha * (volt - xit);
@@ -44,7 +53,8 @@ for i = 1 : samples
      %xiPaths(i, j) = xit + 1 / alpha * (volt - xit) * Dt;
 
      % Compute the approximation of the stock using the Euler method.
-     stockPaths(i, j) = stockt + mu * stockt * Dt + volt * stockt * phiStock(j - 1);
+     stockPaths(i, j) = numMethodStock(stockPaths(i, j - 1), ...
+         volPaths(i, j - 1), xiPaths(i, j - 1), mu, Dt, phiStock(j - 1));
   end
 
 end
