@@ -1,4 +1,4 @@
-function [stockAvg, volAvg, stockPaths, volPaths, xiPaths] = NumWrapper...
+function [stockAvg, volAvg, xiAvg, stockPaths, volPaths, xiPaths] = NumWrapper...
    (randstate, samples, Dt, sigma0, S0, xi0, mu, p, alpha, T, ...
       numMethod)
 
@@ -96,9 +96,9 @@ for i = 1 : samples
 
 end
 
-stockAvg = 1 / 2 * (sum(stockPaths) + sum(stockPathsAV));
-stockAvg = stockAvg / samples;
-volAvg = 1 / 2 * (sum(volPaths) + sum(volPathsAV));
-volAvg = volAvg / samples;
+stockAvg = 1 / 2 * (sum(stockPaths) + sum(stockPathsAV)) / samples;
+volAvg = 1 / 2 * (sum(volPaths) + sum(volPathsAV)) / samples;
+xiAvg = 1 / 2 * (sum(xiPaths) + sum(xiPathsAV)) / samples;
+
 
 % vim: tabstop=2:expandtab
