@@ -1,0 +1,202 @@
+\documentclass[a4paper,onecolumn]{IEEEtran}
+\usepackage{amsmath}
+\usepackage[english]{babel}
+
+\author{A. Bossenbroek}
+\title{Lab Report Computational Aspects of Stochastic Differential Equations}
+
+\begin{document}
+\maketitle
+Assuming the volatility to be constant, as is done in the seminal work by Black
+and Scholes, can be too much of a simplification. In this work a stock process
+is considered which has a drift term, volatility, modeled as a mean reverting
+stochastic process. The stock process is given as:
+\newcommand{\indst}{\ensuremath{^{(1)}}}
+\newcommand{\indvl}{\ensuremath{^{(2)}}}
+\begin{equation}\label{eq:stock}
+dS_t = \mu S_t dt + \sigma_t S_t dW_t\indst
+\end{equation}
+the volatility of the stock is defined to be:
+\begin{equation}\label{eq:vol}
+d\sigma_t = -(\sigma_t - \xi_t)dt + p\sigma_t dW_t\indvl
+\end{equation}
+which includes a mean reverting term $\xi_t$ defined as follows:
+\begin{equation}\label{eq:mnrvrt}
+\xi_t = \frac{1}{\alpha}(\sigma_t - \xi_t)dt
+\end{equation}
+The Brownian motions $W_t^{\{(1), (2)\}}$ in  equation \eqref{eq:stock} and
+\eqref{eq:vol} are two independent identically distributed random variables.
+They have the property that $W_0=0$ and $W_t - W_s \sim N(0, t - s)$ for $s < t$. 
+
+\section{Numerical Methods}
+\subsection{Stock Process}
+To solve the stochastic differential equation (SDE) which models the stock 
+process numerically three numerical methods are used. All methods rely on
+rewriting the SDE in equation \eqref{eq:stock} to an It\=o process. For this two
+auxiliary functions are introduced 
+\begin{align}\label{eq:abstck}
+a(S_t)&=\mu S_t&b(S_t)&=\sigma_t S_t.
+\end{align}
+Note that both functions do not include the independent variable $t$.  The
+stock process can then be rewritten to:
+\newcommand{\inttim}{\ensuremath{\int_{t_0}^{t}}}
+\newcommand{\intdel}{\ensuremath{\int_{t}^{t + \Delta t}}}
+\begin{equation*}
+dS_t = a(S_t)dS_t + b(S_t)dW_t\indst
+\end{equation*}
+or
+\begin{equation*}
+S_t = S_0 + \inttim a(S_t)ds + \inttim b(S_t)dW\indst.
+\end{equation*}
+This value can only be approximated by taking a --infinitesimal-- small step
+$\Delta t$ from $t$. The new value $S_{t + \Delta t}$ can be found using
+different numerical methods. Three methods are discussed below.
+
+\subsubsection{Euler Method}
+The Euler method relies on computing the value of $a$ and $b$ as defined in
+equation \eqref{eq:abstck}. For an It\=o process the Euler method is defined as:
+\begin{equation}\label{eq:euler}
+X_{t + \Delta t} = X_t + a\Delta t + b\Delta W
+\end{equation}
+where $\Delta t$ is the time step more commonly denoted as $h$ in numerical
+mathematics and $\Delta W = \left(W\indst_{t + \Delta t} - W\indst_t\right)$.
+Since $\left(W\indst_{t + \Delta t} - W\indst_t\right) =
+Z\indst\sqrt{\Delta t}$ where $Z\indst\sim N(0, 1)$ the numerical
+approximation can easily be found using the Euler method. Given a step size
+$\Delta t$ the new stock value can be computed as:
+\begin{align}
+S_{t + \Delta t} = S_t + \mu S_t\Delta t + \sigma_t S_t Z\indst\sqrt{\Delta t}
+\end{align}
+where only $a(S_t)$ and $b(S_t)$ have to be computed, this in contrast to
+subsequent methods.
+
+
+\subsubsection{Milstein Method}
+The Milstein method is a second method which can be used to compute the
+numerical approximation of a SDE. The functions $a$ and $b$ as defined in
+equation \eqref{eq:abstck} are used. In conjunction with these functions, the
+Milstein method necessitates also $b'(S_t) = \sigma_t$. For an It\=o process
+$X_t$ the Milstein method is defined as:
+\begin{equation}\label{eq:mil}
+X_{t + \Delta t} = X_t + a\Delta t + b\Delta W +
+\frac{1}{2}bb'\left(\left(\Delta W\right)^2 - \Delta t\right)
+\end{equation}
+with $\Delta t$ and $\Delta W$ as defined before. For the SDE in
+equation \eqref{eq:stock} the approximation is:
+\begin{equation}
+S_{t + \Delta t} = S_t + \mu S_t dt + \sigma_t S_t Z\indst\sqrt{\Delta t} +
+	\frac{1}{2} \sigma_t^2 S_t \left(\left(Z\indst\sqrt{\Delta t}\right)^2 -
+\Delta t\right)
+\end{equation}
+In contrast to the Euler method, the Milstein method not only requires to
+compute $a(S_t)$ and $b(S_t)$, it also requires $b'(S_t)$.
+
+\subsubsection{Runge-Kutta Method}
+For a numerical approximation of a SDE using the Milstein method the
+evaluation of $b'$ is necessary. However, in some circumstances $b'$ may be
+unavailable or too expensive to compute. Therefore another numerical method
+is also used. The Runge-Kutta method only necessitates the evaluation of $a$
+and $b$ which similar to the Euler method. For an It\=o process $X_t$ the
+Runge-Kutta method is defined as
+\begin{equation}\label{eq:rk}
+X_{t + \Delta t} = X_t + a\Delta t + b\Delta W + \frac{1}{2\sqrt{\Delta
+t}}\left(\left(\Delta W\right)^2 - \Delta
+t\right)[b\left(\bar{X_t}\right)-b(X_t)]
+\end{equation}
+where $\bar{X_t}$ is defined as:
+\begin{equation}
+\bar{X_t} = X_t + a\Delta t + b \sqrt{\Delta t}
+\end{equation}
+Applying this method to the stock process defined in equation \eqref{eq:stock}
+the Runge-Kutta approximation can be computed as:
+\begin{equation}
+\begin{split}
+\bar{S_t} &= S_t + \mu S_t\Delta t + \sigma_t S_t \sqrt{\Delta t}\\
+S_{t + \Delta t} &= S_t + \mu S_t \Delta t + \sigma_t S_t Z\indst\sqrt{\Delta
+t} + \frac{1}{2\sqrt{\Delta t}}\left(\left(Z\indst\sqrt{\Delta t}\right)^2 -
+\Delta t\right)[\sigma_t\bar{S_t} - \sigma_t S_t]
+\end{split}
+\end{equation}
+using this method the computational times can be decreased.
+
+\subsection{Volatility Process}
+In the previous section the numerical approximation of the stock process as
+defined in equation \eqref{eq:stock} was discussed. In this section we will
+discuss how the numerical approximation of the volatility process as defined
+in equation \eqref{eq:vol} can be approximated. As with the stock process three
+different numerical methods will be used. Since we already defined the Euler
+method (see equation \eqref{eq:euler}), Milstein method (see equation
+\eqref{eq:mil}) and Runge-Kutta method (see equation \eqref{eq:rk}) for an
+It\=o process, this section will only discuss the applications of these
+methods on the volatility process. For each approximation method we define $a$
+and $b$ as follows:
+\begin{align}
+a(\sigma_t)&= -(\sigma_t - \xi_t) & b(\sigma_t) = p\sigma_t
+\end{align}
+The approximation of the volatility process using the Euler method can be
+found with:
+\begin{equation}
+\sigma_{t + \Delta t} = \sigma_t - (\sigma_t - \xi_t)\Delta t +
+	p\sigma_tZ\indvl\sqrt{\Delta t}
+\end{equation}
+where $Z\indvl\sim N(0, 1)$ is independent from $Z\indst$.
+
+The approximation of the volatility process using the Milstein method can be
+found with:
+\begin{equation}
+\sigma_{t + \Delta t} = \sigma_t - (\sigma_t - \xi_t)\Delta t +
+	p\sigma_t Z\indvl \sqrt{\Delta t} + \frac{1}{2}p^2\sigma_t 
+	\left(\left(Z\indvl\sqrt{\Delta t}\right)^2 - \Delta t\right)
+\end{equation}
+
+The Runge-Kutta method for the approximation of the volatility process is:
+\begin{equation}
+\begin{split}
+\bar{\sigma_t} &= \sigma_t  -(\sigma_t - \xi_t)\Delta t + p\sigma_t 
+	\sqrt{\Delta t}\\
+\sigma_{t + \Delta t} &= \sigma_t - (\sigma_t - \xi_t)\Delta t 
+	+ p\sigma_t Z\indvl\sqrt{\Delta t}
+	+ \frac{1}{2\sqrt{\Delta t}}\left(\left(Z\indvl\sqrt{\Delta t}\right)^2 -
+\Delta t\right)[p\bar{\sigma_t} - p\sigma_t]
+\end{split}
+\end{equation}
+
+\subsection{Mean-Reverting Term}
+A feature of the volatility process defined in equation \eqref{eq:vol} is that
+it is mean reverting. The definition of the mean reverting term is given in
+\eqref{eq:mnrvrt}. Since this function is deterministic the previous
+stochastic approximation methods cannot be used. However, the numerical
+approximation is essential. In subsequent sections the approximation error of
+each individual stochastic numerical approximation will be the center of our
+investigation. To reduce the approximation error originating from the
+numerical integration of the mean reverting process a fourth-order
+approximation method is used.  The Runge-Kutta numerical approximation method
+(from this point forward revert to as the RK4) for the ordinary differential
+equation defined in equation \eqref{eq:mnrvrt} is:
+\begin{equation}
+\xi_{t + \Delta t} = \xi_t + \frac{\Delta t}{6}(k_1 + 2k_2 + 2k_3 + k_4)
+\end{equation}
+where $k_{\{1, 2, 3, 4\}}$ are defined as:
+\begin{align*}
+k_1 &= \frac{1}{\alpha}(\sigma_t - \xi_t)\\
+k_2 &= \frac{1}{\alpha}\left(\left(\sigma_t + \frac{\Delta t}{2}k_1\right) -
+	\xi_t\right)\\
+k_3 &= \frac{1}{\alpha}\left(\left(\sigma_t + \frac{\Delta t}{2}k_2\right) -
+	\xi_t\right)\\
+k_4 &= \frac{1}{\alpha}\left(\left(\sigma_t + \Delta t k_3\right) -
+	\xi_t\right)
+\end{align*}
+With this last numerical approximation it is possible to implement the methods
+in an algorithm and find solutions.
+
+\section{Experiments}
+Various experiments were conducted by means of computer programs which
+implement the numerical approximations methods discussed in the previous
+section. The first experiments investigate the impact of $p$ and $\alpha$ on
+the behaviour of $S_{0 \leq t < T}$, $E(S_{0 \leq t < T})$ and $E(S_T)$.
+
+
+\end{document}
+
+
+% vim: spell spelllang=en
