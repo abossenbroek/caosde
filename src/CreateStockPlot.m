@@ -1,4 +1,4 @@
-function CreateStockPlot(time, stock, vol, xi, alpha, p)
+function CreateStockPlot(time, stock, vol, xi, p, alpha)
 %CREATEFIGURE(time,stock,vol,xi)
 %  time:  vector of x data
 %  stock:  vector of y data

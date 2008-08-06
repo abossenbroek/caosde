@@ -8,5 +8,5 @@ function PlotPaths...
       numMethod);
 
 % Create the figure.
-CreateStockPlot(0 + Dt : Dt : 1, stockAvg, volAvg, xiAvg, alpha, p)
+CreateStockPlot(0 + Dt : Dt : 1, stockAvg, volAvg, xiAvg, p, alpha)
 
