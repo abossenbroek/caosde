@@ -1,4 +1,4 @@
-function stockInt = RKStock(stock, vol, xi, mu, Dt, phiStock)
+function stockInt = RKStock(stock, vol, mu, Dt, phiStock)
 
 stockHat = stock + mu * stock * Dt + vol * stock * sqrt(Dt);
 stockInt = stock + mu * stock * Dt + vol * stock * phiStock ...

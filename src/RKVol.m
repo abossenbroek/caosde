@@ -1,4 +1,4 @@
-function volInt = RKVol(stock, vol, xi, p, Dt, phiVol);
+function volInt = RKVol(vol, xi, p, Dt, phiVol);
 
 volhat = vol - (vol - xi) * Dt + p * vol * sqrt(Dt);
 volInt = vol - (vol - xi) * Dt + p * vol * phiVol ...

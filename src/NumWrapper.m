@@ -10,20 +10,20 @@ N = T / Dt;
 
 % Determine which methods to use for the specified numerical method.
 if strcmp(numMethod, 'Euler')
-   numMethodStock = @(stock, vol, xi, mu, Dt, phiStock)...
-      EulerStock(stock, vol, xi, mu, Dt, phiStock);
-   numMethodVol   = @(stock, vol, xi, p, Dt, phiVol)...
-      EulerVol(stock, vol, xi, p, Dt, phiVol);
+   numMethodStock = @(stock, vol, mu, Dt, phiStock)...
+      EulerStock(stock, vol, mu, Dt, phiStock);
+   numMethodVol   = @(vol, xi, p, Dt, phiVol)...
+      EulerVol(vol, xi, p, Dt, phiVol);
 elseif strcmp(numMethod, 'Milstein')
-   numMethodStock = @(stock, vol, xi, mu, Dt, phiStock)...
-      MilsteinStock(stock, vol, xi, mu, Dt, phiStock);
-   numMethodVol   = @(stock, vol, xi, p, Dt, phiVol)...
-      MilsteinVol(stock, vol, xi, p, Dt, phiVol);
+   numMethodStock = @(stock, vol, mu, Dt, phiStock)...
+      MilsteinStock(stock, vol, mu, Dt, phiStock);
+   numMethodVol   = @(vol, xi, p, Dt, phiVol)...
+      MilsteinVol(vol, xi, p, Dt, phiVol);
 elseif strcmp(numMethod, 'RK')
-   numMethodStock = @(stock, vol, xi, mu, Dt, phiStock)...
-      RKStock(stock, vol, xi, mu, Dt, phiStock);
-   numMethodVol   = @(stock, vol, xi, p, Dt, phiVol)...
-      RKVol(stock, vol, xi, p, Dt, phiVol);
+   numMethodStock = @(stock, vol, mu, Dt, phiStock)...
+      RKStock(stock, vol, mu, Dt, phiStock);
+   numMethodVol   = @(vol, xi, p, Dt, phiVol)...
+      RKVol(vol, xi, p, Dt, phiVol);
 end
 
 % Create a matrix which will hold all the paths.
@@ -56,8 +56,8 @@ for i = 1 : samples
      volt = volPaths(i, j - 1);
      xit = xiPaths(i, j - 1);
      % Compute the approximation of the volatility using the Euler method.
-     volPaths(i, j) = numMethodVol(stockPaths(i, j - 1), ...
-         volPaths(i, j - 1), xiPaths(i, j - 1), p, Dt, phiVol(j - 1));
+     volPaths(i, j) = numMethodVol(volPaths(i, j - 1), xiPaths(i, j - 1), ...
+      p, Dt, phiVol(j - 1));
 
      % Compute the approximation of the xi using Runge-Kutta fourth order
      % method.
@@ -71,13 +71,13 @@ for i = 1 : samples
      xiPaths(i, j) = xit + 1 / alpha * (volt - xit) * Dt;
      % Compute the approximation of the stock using the Euler method.
      stockPaths(i, j) = numMethodStock(stockPaths(i, j - 1), ...
-         volPaths(i, j - 1), xiPaths(i, j - 1), mu, Dt, phiStock(j - 1));
+         volPaths(i, j - 1), mu, Dt, phiStock(j - 1));
 
      voltAV = volPathsAV(i, j - 1);
      xitAV = xiPathsAV(i, j - 1);
      % Compute the approximation of the volatility using the Euler method.
-     volPathsAV(i, j) = numMethodVol(stockPathsAV(i, j - 1), ...
-         volPathsAV(i, j - 1), xiPathsAV(i, j - 1), p, Dt, -phiVol(j - 1));
+     volPathsAV(i, j) = numMethodVol(volPathsAV(i, j - 1), ...
+         xiPathsAV(i, j - 1), p, Dt, -phiVol(j - 1));
 
      % Compute the approximation of the xi using Runge-Kutta fourth order
      % method.
@@ -91,7 +91,7 @@ for i = 1 : samples
      xiPathsAV(i, j) = xitAV + 1 / alpha * (voltAV - xitAV) * Dt;
      % Compute the approximation of the stock using the Euler method.
      stockPathsAV(i, j) = numMethodStock(stockPathsAV(i, j - 1), ...
-         volPathsAV(i, j - 1), xiPathsAV(i, j - 1), mu, Dt, -phiStock(j - 1));
+         volPathsAV(i, j - 1), mu, Dt, -phiStock(j - 1));
   end
 
 end
