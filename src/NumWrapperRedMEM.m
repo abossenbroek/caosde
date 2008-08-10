@@ -17,7 +17,7 @@ if strcmp(numMethod, 'Euler')
       EulerVol(vol, xi, p, Dt, phiVol);
 elseif strcmp(numMethod, 'Milstein')
    numMethodStock = @(stock, vol, mu, Dt, phiStock)...
-      MilsteinStock(stock, vol, xi, mu, Dt, phiStock);
+      MilsteinStock(stock, vol, mu, Dt, phiStock);
    numMethodVol   = @(vol, xi, p, Dt, phiVol)...
       MilsteinVol(vol, xi, p, Dt, phiVol);
 elseif strcmp(numMethod, 'RK')
@@ -28,9 +28,9 @@ elseif strcmp(numMethod, 'RK')
 end
 
 % Create a matrix which will hold all the paths.
-stockAvg = zeros(N);
-volAvg = zeros(N);
-xiAvg = zeros(N);
+stockAvg = zeros(N, 1);
+volAvg = zeros(N, 1);
+xiAvg = zeros(N, 1);
 
 stockAvg(1) = S0;
 volAvg(1) = sigma0;
@@ -48,12 +48,9 @@ for i = 1 : samples
    % First compute the volatility path since this cannot be compuated in a
    % vector operation.
    for j = 2 : N
-      % Generate two sets of random numbers.
-      phiStock = randn(1);
-      phiVol = randn(1);
-      % Create the Brownian motion
-      phiStock = phiStock * sqrt(Dt);
-      phiVol = phiVol * sqrt(Dt);
+      % Generate two random numbers used for the Brownian motion.
+      phiStock = randn() * sqrt(Dt);
+      phiVol = randn() * sqrt(Dt);
 
       % Compute the approximation of the stock using a numerical method.
       stockt = numMethodStock(stockt, volt, mu, Dt, phiStock);
@@ -62,7 +59,7 @@ for i = 1 : samples
       % Note that the current value of the volatility has to be stored
       % since it is required for the approximation of xi_{t + 1}
       volt1 = volt;
-      volt = numMethodVol(volt, xit, p, Dt);
+      volt = numMethodVol(volt, xit, p, Dt, phiVol);
 
 
       % Compute the approximation of the xi using Runge-Kutta fourth order
@@ -82,7 +79,7 @@ for i = 1 : samples
       % Note that the current value of the volatility has to be stored
       % since it is required for the approximation of xi_{t + 1}
       volt1AV = voltAV;
-      voltAV = numMethodVol(voltAV, xitAV, p, Dt);
+      voltAV = numMethodVol(voltAV, xitAV, p, Dt, -phiVol);
 
       % Compute the approximation of the xi using Runge-Kutta fourth order
       % method.

@@ -61,14 +61,14 @@ for i = 1 : samples
 
      % Compute the approximation of the xi using Runge-Kutta fourth order
      % method.
-     %k1 = 1 / alpha * (volt - xit);
-     %k2 = 1 / alpha * (volt + Dt / 2 * k1 - xit);
-     %k3 = 1 / alpha * (volt + Dt / 2 * k2 - xit);
-     %k4 = 1 / alpha * (volt + Dt * k3 - xit);
+     k1 = 1 / alpha * (volt - xit);
+     k2 = 1 / alpha * (volt + Dt / 2 * k1 - xit);
+     k3 = 1 / alpha * (volt + Dt / 2 * k2 - xit);
+     k4 = 1 / alpha * (volt + Dt * k3 - xit);
 
-     %xiPaths(i, j) = xit + Dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
+     xiPaths(i, j) = xit + Dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
      % Use the Backward Euler method to compute xi.
-     xiPaths(i, j) = xit + 1 / alpha * (volt - xit) * Dt;
+     %xiPaths(i, j) = xit + 1 / alpha * (volt - xit) * Dt;
      % Compute the approximation of the stock using the Euler method.
      stockPaths(i, j) = numMethodStock(stockPaths(i, j - 1), ...
          volPaths(i, j - 1), mu, Dt, phiStock(j - 1));
@@ -81,19 +81,18 @@ for i = 1 : samples
 
      % Compute the approximation of the xi using Runge-Kutta fourth order
      % method.
-     %k1 = 1 / alpha * (voltAV - xitAV);
-     %k2 = 1 / alpha * (voltAV + Dt / 2 * k1 - xitAV);
-     %k3 = 1 / alpha * (voltAV + Dt / 2 * k2 - xitAV);
-     %k4 = 1 / alpha * (voltAV + Dt * k3 - xitAV);
+     k1 = 1 / alpha * (voltAV - xitAV);
+     k2 = 1 / alpha * (voltAV + Dt / 2 * k1 - xitAV);
+     k3 = 1 / alpha * (voltAV + Dt / 2 * k2 - xitAV);
+     k4 = 1 / alpha * (voltAV + Dt * k3 - xitAV);
 
-     %xiPathsAV(i, j) = xitAV + Dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
+     xiPathsAV(i, j) = xitAV + Dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
      % Use the Backward Euler method to compute xi.
-     xiPathsAV(i, j) = xitAV + 1 / alpha * (voltAV - xitAV) * Dt;
+     %xiPathsAV(i, j) = xitAV + 1 / alpha * (voltAV - xitAV) * Dt;
      % Compute the approximation of the stock using the Euler method.
      stockPathsAV(i, j) = numMethodStock(stockPathsAV(i, j - 1), ...
          volPathsAV(i, j - 1), mu, Dt, -phiStock(j - 1));
   end
-
 end
 
 stockAvg = 1 / 2 * (sum(stockPaths) + sum(stockPathsAV)) / samples;
