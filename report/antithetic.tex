@@ -1,0 +1,54 @@
+\documentclass[a4paper]{article}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+
+\author{Anton Bossenbroek}
+\title{Antithetic Variance in Stochastic Volatility Models}
+
+\begin{document}
+\maketitle
+Voor het benaderen van $E(S_T) \approx \frac{1}{n}\sum_{i = 1}^{n} S_T^i$ met minder samples
+wil ik variantie reductie gebruiken. Ik heb een vraag over de juiste
+implementatie. De eerste optie is eerst het normale pad te berekenen:
+\begin{align*}
+S_t &= \mu S_t dt + \sigma_t S_t dW^{(1)}\\
+\sigma_t &= -(\sigma_t - \xi_t) dt + p\sigma_t dW^{(2)}\\
+\xi_t &= \frac{1}{\alpha}(\sigma_t - \xi_t)dt\\
+\end{align*}
+en dan het antithetic pad:
+\begin{align*}
+\bar{S_t} &= \mu \bar{S_t} dt + \bar{\sigma_t} \bar{S_t} -dW^{(1)}\\
+\bar{\sigma_t} &= -(\bar{\sigma_t} - \bar{\xi_t}) dt + p\bar{\sigma_t
+}-dW^{(2)}\\
+\bar{\xi_t} &= \frac{1}{\alpha}(\bar{\sigma_t} - \bar{\xi_t})dt
+\end{align*}
+De verwachtingen van $S_T$ en $\sigma_T$ kunnen dan benaderd worden als
+\begin{equation}\label{eq:exs}
+E(S_T) \approx \frac{1}{n} \sum_{i = 1}^{n} \frac{S^i_T + \bar{S^i_T}}{2}
+\end{equation}
+en
+\begin{equation}\label{eq:exv}
+E(\sigma_T) \approx \frac{1}{n} \sum_{i = 1}^{n} \frac{\sigma^i_T +
+\bar{\sigma^i_T}}{2}
+\end{equation}
+
+\subsubsection*{Optie twee}
+De tweede optie waar tussen ik twijfel is:
+\begin{align*}
+S_t &= \mu S_t dt + \frac{1}{2}(\sigma_t + \bar{\sigma_t}) S_t dW^{(1)}\\
+\sigma_t &= -(\sigma_t - \xi_t) dt + p\sigma_t dW^{(2)}\\
+\xi_t &= \frac{1}{\alpha}(\sigma_t - \xi_t)dt
+\end{align*}
+en het antithetic pad:
+\begin{align*}
+\bar{S_t} &= \mu \bar{S_t} dt + \frac{1}{2}(\sigma_t + \bar{\sigma_t})
+\bar{S_t} -dW^{(1)}\\
+\bar{\sigma_t} &= -(\bar{\sigma_t} - \bar{\xi_t}) dt + p\bar{\sigma_t
+}-dW^{(2)}\\
+\bar{\xi_t} &= \frac{1}{\alpha}(\bar{\sigma_t} - \bar{\xi_t})dt
+\end{align*}
+De verwachting voor $S_T$ en $\sigma_T$ kan dan benaderd worden met
+vergelijking \eqref{eq:exs} en \eqref{eq:exv}.
+
+
+\end{document}

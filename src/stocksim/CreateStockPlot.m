@@ -31,6 +31,8 @@ ylabel('Stock Price');
 
 % Create subplot
 subplot1 = subplot(2,2,3,'Parent',figure1);
+% Uncomment the following line to preserve the Y-limits of the axes
+% ylim([0.19 0.21]);
 box('on');
 hold('all');
 
@@ -48,6 +50,8 @@ ylabel('Volatility');
 
 % Create subplot
 subplot2 = subplot(2,2,4,'Parent',figure1);
+% Uncomment the following line to preserve the Y-limits of the axes
+% ylim([0.19 0.21]);
 box('on');
 hold('all');
 
