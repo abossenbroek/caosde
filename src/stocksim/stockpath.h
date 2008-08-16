@@ -5,6 +5,8 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_math.h>
 
+#include "/Applications/MATLAB_R2008a/extern/include/mex.h"
+
 enum { 
    EULER,
    MILSTEIN,
@@ -12,15 +14,10 @@ enum {
    NO_METHOD
 };
 
-enum {
-   NO_ANTIVAR,
-   ANTIVAR
-};
-
-void stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, long int samples, double Dt,
+void stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
       double sigma_0, double S_0, double xi_0, double mu, double p, double
-      alpha, long int N, double r, char num_method, char antivar, double
-      *stock_mn, double *vol_mn, double *xi_mn);
+      alpha, mwSize N, double r, char num_method,  double
+      *stock_paths, double *vol_paths, double *xi_paths);
 
 #endif
 

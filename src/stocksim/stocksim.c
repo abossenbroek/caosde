@@ -22,17 +22,18 @@
 #define  T_IN	       prhs[9]
 #define  NUMMETHOD_IN prhs[10]
 
-#define  STOCKAVG     plhs[0]
-#define  VOLAVG       plhs[1]
-#define  XIAVG        plhs[2]
+#define  STOCKPATHS     plhs[0]
+#define  VOLPATHS       plhs[1]
+#define  XIPATHS        plhs[2]
 
 void 
 mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) 
 {
-   long int N;
-   double   *stock_mn;
-   double   *vol_mn;
-   double   *xi_mn;
+   mwSize   N;
+   mwSize   samples;
+   double   *stock_paths;
+   double   *vol_paths;
+   double   *xi_paths;
    char     num_method = NO_METHOD;
    gsl_rng				 *rng_stock, *rng_vol;
 	const gsl_rng_type *rng_type;
@@ -59,15 +60,16 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
    /* How many steps should be simulated? */
    N = lround(*mxGetPr(T_IN) / *mxGetPr(DT_IN));
+   samples = (mwSize)lround(*mxGetPr(SAMPLES_IN));
    /* Assign memory to the output parameters. */
-   STOCKAVG = mxCreateDoubleMatrix(1, N, mxREAL);
-   VOLAVG = mxCreateDoubleMatrix(1, N, mxREAL);
-   XIAVG = mxCreateDoubleMatrix(1, N, mxREAL);
+   STOCKPATHS = mxCreateDoubleMatrix(samples, N, mxREAL);
+   VOLPATHS = mxCreateDoubleMatrix(samples, N, mxREAL);
+   XIPATHS = mxCreateDoubleMatrix(samples, N, mxREAL);
 
    /* Use local variables to access the memory allocated above. */
-   stock_mn = mxGetPr(STOCKAVG);
-   vol_mn = mxGetPr(VOLAVG);
-   xi_mn = mxGetPr(XIAVG);
+   stock_paths = mxGetPr(STOCKPATHS);
+   vol_paths = mxGetPr(VOLPATHS);
+   xi_paths = mxGetPr(XIPATHS);
 
    /* Determine which numerical method should be used. */
    if (strncmp(mxArrayToString(NUMMETHOD_IN), "euler", strlen("euler")) == 0) 
@@ -93,10 +95,10 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   
 
    /* Call the worker routine. */
-   stockPath(rng_stock, rng_vol, lround(*mxGetPr(SAMPLES_IN)), *mxGetPr(DT_IN),
+   stockPath(rng_stock, rng_vol, samples, *mxGetPr(DT_IN),
          *mxGetPr(SIGMA0_IN), *mxGetPr(S_0_IN), *mxGetPr(XI0_IN),
          *mxGetPr(MU_IN), *mxGetPr(P_IN), *mxGetPr(ALPHA_IN), N, -1,
-         num_method, ANTIVAR, stock_mn, vol_mn, xi_mn);
+         num_method, stock_paths, vol_paths, xi_paths);
 	gsl_rng_free(rng_stock);
 	gsl_rng_free(rng_vol);
 }
