@@ -1,4 +1,4 @@
-function CreateStockPlot(time, stock, vol, xi, samples, p, alpha, printFig)
+function CreateStockBoxPlot(time, stock, vol, xi, samples, p, alpha, printFig)
 %CREATEFIGURE(time,stock,vol,xi)
 %  time:  vector of x data
 %  stock:  vector of y data
@@ -12,61 +12,37 @@ figure1 = figure('XVisual',...
     '0x24 (TrueColor, depth 24, RGB mask 0xff0000 0xff00 0x00ff)',...
     'Color', 'white');
 
-% Create axes
-axes1 = axes('Parent',figure1,'Position',[0.13 0.5838 0.775 0.3412]);
+[n m] = size(stock);
 box('on');
 hold('all');
-
-% Create plot
-plot(time,stock,'Parent',axes1);
-ylim([40 100]);
+subplot(1, 2, 1, 'Parent', figure1);
+boxplot([stock(n * 1/5, :)' stock(n * 2/5, :)' stock(n * 3/5, :)' stock(n * 4/5, :)' stock(n, :)'])
 
 % Create title
-title('Stock paths');
+title('Box whiskers plot of the stock price');
 
 % Create xlabel
-xlabel('Time');
+xlabel('Time (* 1/5)');
 
 % Create ylabel
 ylabel('Stock Price');
 
-% Create subplot
-subplot1 = subplot(2,2,3,'Parent',figure1);
-% Uncomment the following line to preserve the Y-limits of the axes
-ylim([0.10 0.8]);
 box('on');
 hold('all');
+% Create subplot
+subplot1 = subplot(1,2,2,'Parent',figure1);
 
-% Create plot
-plot(time,vol,'Parent',subplot1);
+boxplot([vol(n * 1/5, :)' vol(n * 2/5, :)' vol(n * 3/5, :)' vol(n * 4/5, :)' vol(n, :)'])
 
 % Create title
-title('Volatility paths');
+title('Box whiskers plot of the volatility');
 
 % Create xlabel
-xlabel('Time');
+xlabel('Time (* 1/5)');
 
 % Create ylabel
 ylabel('Volatility');
 
-% Create subplot
-subplot2 = subplot(2,2,4,'Parent',figure1);
-% Uncomment the following line to preserve the Y-limits of the axes
-ylim([0.10 0.8]);
-box('on');
-hold('all');
-
-% Create plot
-plot(time,xi,'Parent',subplot2);
-
-% Create title
-title('Xi Paths');
-
-% Create xlabel
-xlabel('Time');
-
-% Create ylabel
-ylabel('Xi');
 
 % Create textbox
 annotation(figure1,'textbox', [0.4 0.01584 0.8 0.03464],...
