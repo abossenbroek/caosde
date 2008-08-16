@@ -21,7 +21,7 @@ hold('all');
 plot(time,stock,'Parent',axes1);
 
 % Create title
-title('Expectation of the Stock path');
+title('Stock paths');
 
 % Create xlabel
 xlabel('Time');
@@ -40,7 +40,7 @@ hold('all');
 plot(time,vol,'Parent',subplot1);
 
 % Create title
-title('Expectation of the Volatility path');
+title('Volatility paths');
 
 % Create xlabel
 xlabel('Time');
@@ -59,7 +59,7 @@ hold('all');
 plot(time,xi,'Parent',subplot2);
 
 % Create title
-title('Xi Average Path');
+title('Xi Paths');
 
 % Create xlabel
 xlabel('Time');
@@ -70,7 +70,7 @@ ylabel('Xi');
 % Create textbox
 annotation(figure1,'textbox', [0.3 0.01584 0.8 0.03464],...
     'Interpreter','none',...
-    'String',{['Samples = ' num2str(samples) '    Alpha = '  num2str(alpha)  '    p = '  num2str(p) '    S_T = ' num2str(stock(length(stock)))]},...
+    'String',{['Samples = ' num2str(samples) '    Alpha = '  num2str(alpha)  '    p = '  num2str(p)]},...
     'FitBoxToText','off',...
     'LineStyle','none');
 

@@ -5,8 +5,6 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_math.h>
 
-#include "stockpath.h"
-
 #include "mex.h"
 #include "matrix.h"
    
@@ -25,6 +23,109 @@
 #define  STOCKPATHS     plhs[0]
 #define  VOLPATHS       plhs[1]
 #define  XIPATHS        plhs[2]
+
+enum { 
+   EULER,
+   MILSTEIN,
+   RK,
+   NO_METHOD
+};
+
+static double euler_stock(const double stock_t, const double vol_t, const
+		double mu, const double Dt, const double phi_stock);
+static double euler_vol(const double vol_t, const double xi_t, const double p,
+		const double Dt, const double phi_vol);
+
+static double milstein_stock(const double stock_t, const double vol_t, const
+		double mu, const double Dt, const double phi_stock);
+static double milstein_vol(const double vol_t, const double xi_t, const double
+		p, const double Dt, const double phi_vol);
+
+static double rk_stock(const double stock_t, const double vol_t, const double
+		mu, const double Dt, const double phi_stock);
+static double rk_vol(const double vol_t, const double xi_t, const double p,
+		const double Dt, const double phi_vol);
+
+
+/* The worker routine. */
+void 
+stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
+      double sigma_0, double S_0, double xi_0, double mu, double p, double
+      alpha, mwSize N, double r, char num_method, double
+      *stock_paths, double *vol_paths, double *xi_paths) 
+{
+   mwSize  i;
+   mwSize  j;
+   mwSize  index;
+   double  phi_stock;
+   double  phi_vol;
+   double  k_1, k_2, k_3, k_4;
+   double  (*num_method_stock)(const double, const double,
+         const double, const double, const double) = NULL;
+   double              (*num_method_vol)(const double,  const double,
+         const double, const double, const double) = NULL;
+
+   /* Determine which functions to use. */
+   if (num_method == EULER) {
+      num_method_stock = &euler_stock;
+      num_method_vol = &euler_vol;
+   } else if (num_method == MILSTEIN) {
+      num_method_stock = &milstein_stock;
+      num_method_vol = &milstein_vol;
+   } else if (num_method == RK) {
+      num_method_stock = &rk_stock;
+      num_method_vol = &rk_vol;
+   } else {
+      mexErrMsgTxt("Only 'euler', 'milstein' and 'rk' are implemented");
+   }
+
+   index = 0;
+
+   for (i = 0; i < samples; i++) {
+      /* Set the initial value of the paths. */
+      stock_paths[index] = S_0;
+      vol_paths[index] = sigma_0;
+      xi_paths[index] = xi_0;
+      index++;
+
+      /* Generate the rest of the path. */
+      for (j = 1; j < N; j++) {
+	      phi_stock = gsl_ran_gaussian(rng_stock, 1) * sqrt(Dt);
+	      phi_vol = gsl_ran_gaussian(rng_vol, 1) * sqrt(Dt);
+
+         /* Check if the interest rate should be included. */
+         if (!(r < 0.0))
+            mu = r;
+
+         /* Compute the integral of the stock using the numerical method. */
+         stock_paths[index] = num_method_stock(stock_paths[index - 1], 
+               vol_paths[index - 1], mu, Dt, phi_stock);
+         /* Compute the integral of the volatility using the numerical 
+          * method. */
+         vol_paths[index] = num_method_vol(vol_paths[index - 1], 
+               xi_paths[index - 1], p, Dt, phi_vol);
+
+         /* Compute the approximation of the xi using Runge-Kutta fourth order
+          * method. */
+         k_1 = 1 / alpha * (vol_paths[index - 1] 
+               - xi_paths[index - 1]);
+         k_2 = 1 / alpha * (vol_paths[index - 1] + 0.5 * Dt * k_1 
+               - xi_paths[index - 1]);
+         k_3 = 1 / alpha * (vol_paths[index - 1] + 0.5 * Dt * k_2 
+               - xi_paths[index - 1]);
+         k_4 = 1 / alpha * (vol_paths[index - 1] + Dt * k_3 
+               - xi_paths[index - 1]);
+
+         xi_paths[index] = xi_paths[index - 1] 
+            + Dt / 6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4);
+         
+         index++;
+      }
+   }
+
+	return;
+}
+
 
 void 
 mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) 
@@ -62,9 +163,9 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
    N = lround(*mxGetPr(T_IN) / *mxGetPr(DT_IN));
    samples = (mwSize)lround(*mxGetPr(SAMPLES_IN));
    /* Assign memory to the output parameters. */
-   STOCKPATHS = mxCreateDoubleMatrix(samples, N, mxREAL);
-   VOLPATHS = mxCreateDoubleMatrix(samples, N, mxREAL);
-   XIPATHS = mxCreateDoubleMatrix(samples, N, mxREAL);
+   STOCKPATHS = mxCreateDoubleMatrix(N, samples, mxREAL);
+   VOLPATHS = mxCreateDoubleMatrix(N, samples, mxREAL);
+   XIPATHS = mxCreateDoubleMatrix(N, samples, mxREAL);
 
    /* Use local variables to access the memory allocated above. */
    stock_paths = mxGetPr(STOCKPATHS);
@@ -102,5 +203,59 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	gsl_rng_free(rng_stock);
 	gsl_rng_free(rng_vol);
 }
+
+double 
+euler_stock(const double stock_t, const double vol_t, const double mu,
+      const double Dt, const double phi_stock)
+{
+   return stock_t + mu * stock_t * Dt + vol_t * stock_t * phi_stock;
+}
+
+double 
+euler_vol(const double vol_t, const double xi_t, const double p,
+      const double Dt, const double phi_vol)
+{
+   return vol_t - (vol_t - xi_t) * Dt + p * vol_t * phi_vol;
+}
+
+double 
+milstein_stock(const double stock_t, const double vol_t, const double mu,
+      const double Dt, const double phi_stock)
+{
+   return stock_t + mu * stock_t * Dt + vol_t * stock_t * phi_stock
+      + 0.5 * gsl_pow_2(vol_t) * stock_t * (gsl_pow_2(phi_stock) - Dt);
+}
+
+double 
+milstein_vol(const double vol_t, const double xi_t, const double p,
+      const double Dt, const double phi_vol)
+{
+   return vol_t - (vol_t - xi_t) * Dt + p * vol_t * phi_vol 
+      + 0.5 * gsl_pow_2(p) * vol_t * (gsl_pow_2(phi_vol) - Dt);
+
+}
+
+double 
+rk_stock(const double stock_t, const double vol_t, const double mu,
+      const double Dt, const double phi_stock)
+{
+   double stock_hat = stock_t + mu * stock_t * Dt + vol_t * stock_t * sqrt(Dt);
+   
+   return stock_t + mu * stock_t * Dt + vol_t * stock_t * phi_stock
+      + 1 / (2 * sqrt(Dt)) * (gsl_pow_2(phi_stock) - Dt) * (vol_t * stock_hat 
+            - vol_t * stock_t);
+}
+
+double 
+rk_vol(const double vol_t, const double xi_t, const double p,
+      const double Dt, const double phi_vol)
+{
+   double vol_hat = vol_t - (vol_t - xi_t) * Dt + p * vol_t * sqrt(Dt);
+
+   return vol_t - (vol_t - xi_t) * Dt + p * vol_t * phi_vol 
+      + 1 / (2 * sqrt(Dt)) * (gsl_pow_2(phi_vol) - Dt) * (p * vol_hat 
+            - p * vol_t);
+}
+
 
 /* vim: set et : tw=80 : spell spelllang=en: */
