@@ -72,32 +72,12 @@ for i = 1 : samples
      % Compute the approximation of the stock using the Euler method.
      stockPaths(i, j) = numMethodStock(stockPaths(i, j - 1), ...
          volPaths(i, j - 1), mu, Dt, phiStock(j - 1));
-
-     voltAV = volPathsAV(i, j - 1);
-     xitAV = xiPathsAV(i, j - 1);
-     % Compute the approximation of the volatility using the Euler method.
-     volPathsAV(i, j) = numMethodVol(volPathsAV(i, j - 1), ...
-         xiPathsAV(i, j - 1), p, Dt, -phiVol(j - 1));
-
-     % Compute the approximation of the xi using Runge-Kutta fourth order
-     % method.
-     k1 = 1 / alpha * (voltAV - xitAV);
-     k2 = 1 / alpha * (voltAV + Dt / 2 * k1 - xitAV);
-     k3 = 1 / alpha * (voltAV + Dt / 2 * k2 - xitAV);
-     k4 = 1 / alpha * (voltAV + Dt * k3 - xitAV);
-
-     xiPathsAV(i, j) = xitAV + Dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
-     % Use the Backward Euler method to compute xi.
-     %xiPathsAV(i, j) = xitAV + 1 / alpha * (voltAV - xitAV) * Dt;
-     % Compute the approximation of the stock using the Euler method.
-     stockPathsAV(i, j) = numMethodStock(stockPathsAV(i, j - 1), ...
-         volPathsAV(i, j - 1), mu, Dt, -phiStock(j - 1));
-  end
+     end
 end
 
-stockAvg = 1 / 2 * (sum(stockPaths) + sum(stockPathsAV)) / samples;
-volAvg = 1 / 2 * (sum(volPaths) + sum(volPathsAV)) / samples;
-xiAvg = 1 / 2 * (sum(xiPaths) + sum(xiPathsAV)) / samples;
+stockAvg = sum(stockPaths) / samples;
+volAvg = sum(volPaths) / samples;
+xiAvg = sum(xiPaths) / samples;
 
 
 % vim: tabstop=2:expandtab

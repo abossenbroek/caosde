@@ -1,3 +1,25 @@
+/* 
+ * File:    stockpath.c
+ *
+ * Abstract:
+ *    This file permits to compute the path of a random walk which models
+ *    a stock price. The approximation is done using a monte-carlo simulation.
+ *    The stock process is a diffusion process where the diffusion term is 
+ *    the volatility. The volatility is also a stochastic process.
+ *    The processes are defined as:
+ *    dS_t = \mu S_t dt + \sigma_t S_t dW^{(1)}_t
+ *    and
+ *    d\sigma_t = -(\sigma_t - \xi_t)\sigma_t dt + p\sigma_t dW^{(2)}_t
+ *    where \xi is:
+ *    \xi_t = 1/alpha (\sigma_t - \xi_t) d\xi_t
+ *    
+ *    The pdes can be approximated with three different numerical methods.
+ *    These are the Euler method, Milstein method and the Runge-Kutta
+ *    method.
+ *
+ *
+ *
+ */
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_math.h>
@@ -27,12 +49,11 @@ static double rk_vol(const double vol_t, const double xi_t, const double p,
 
 /* The worker routine. */
 void 
-stockPath(double rng_state, long int samples, double Dt, double sigma_0, double
-      S_0, double xi_0, double mu, double p, double alpha, long int N,
-      char num_method, double *stock_mn, double *vol_mn, double *xi_mn) 
+stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, long int samples, double Dt,
+      double sigma_0, double S_0, double xi_0, double mu, double p, double
+      alpha, long int N, double r, char num_method, char antivar, double
+      *stock_mn, double *vol_mn, double *xi_mn) 
 {
-	const gsl_rng_type *rng_type;
-	gsl_rng				 *rng_stock, *rng_vol;
    long int            i;
    long int            j;
    double              stock_t = S_0;
@@ -64,17 +85,12 @@ stockPath(double rng_state, long int samples, double Dt, double sigma_0, double
       mexErrMsgTxt("Only 'euler', 'milstein' and 'rk' are implemented");
    }
 
-   /* The Mersenne Twister generator should be good enough for our purpose. */
-	rng_type = gsl_rng_mt19937;
+   for (j = 0; j < samples; j++) {
+      stock_mn[j] = 0;
+      vol_mn[j] = 0;
+      xi_mn[j] = 0;
+   }
 
-   /* Create two random number generators. */
-	rng_stock = gsl_rng_alloc(rng_type);
-	rng_vol = gsl_rng_alloc(rng_type);
- 
-   /* Initialize the state of the random number generator. */
-   gsl_rng_set(rng_stock, rng_state);
-   gsl_rng_set(rng_vol, rng_state + 1);
-  
    /* Set the initial values of the path. */
    stock_mn[0] = stock_t;
    vol_mn[0] = vol_t;
@@ -90,6 +106,13 @@ stockPath(double rng_state, long int samples, double Dt, double sigma_0, double
       for (j = 1; j < N; j++) {
 	      phi_stock = gsl_ran_gaussian(rng_stock, 1) * sqrt(Dt);
 	      phi_vol = gsl_ran_gaussian(rng_vol, 1) * sqrt(Dt);
+
+         mxAssert(phi_stock < 2, "Phi's are too big!");
+         mxAssert(phi_vol < 2, "Phi's are too big!");
+
+         /* Check if the interest rate should be included. */
+         if (!(r < 0.0))
+            mu = r;
 
          /* Compute the integral of the stock using the numerical method. */
          stock_t = num_method_stock(stock_t, vol_t, mu, Dt, phi_stock);
@@ -109,32 +132,47 @@ stockPath(double rng_state, long int samples, double Dt, double sigma_0, double
 
          xi_t += Dt / 6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4);
 
-         /* Compute the integral of the stock using the numerical method. */
-         stock_t_AV = num_method_stock(stock_t_AV, vol_t_AV, mu, Dt, -phi_stock);
-         /* Temporarily store the current value of the volatility to use
-          * in the approximation of xi. */
-         vol_t1 = vol_t_AV;
-         /* Compute the integral of the volatility using the numerical 
-          * method. */
-         vol_t_AV = num_method_vol(vol_t_AV, xi_t_AV, p, Dt, -phi_vol);
+         if (antivar == ANTIVAR) {
+            /* Check if the interest rate should be included. */
+            if (!(r < 0.0))
+               mu = r;
+            /* Compute the integral of the stock using the numerical method. */
+            stock_t_AV = num_method_stock(stock_t_AV, vol_t_AV, mu, Dt, -phi_stock);
+            /* Temporarily store the current value of the volatility to use
+             * in the approximation of xi. */
+            vol_t1 = vol_t_AV;
+            /* Compute the integral of the volatility using the numerical 
+             * method. */
+            vol_t_AV = num_method_vol(vol_t_AV, xi_t_AV, p, Dt, -phi_vol);
 
-         /* Compute the approximation of the xi using Runge-Kutta fourth order
-          * method. */
-         k_1 = 1 / alpha * (vol_t1 - xi_t_AV);
-         k_2 = 1 / alpha * (vol_t1 + 0.5 * Dt * k_1 - xi_t_AV);
-         k_3 = 1 / alpha * (vol_t1 + 0.5 * Dt * k_2 - xi_t_AV);
-         k_4 = 1 / alpha * (vol_t1 + Dt * k_3 - xi_t_AV);
+            /* Compute the approximation of the xi using Runge-Kutta fourth order
+             * method. */
+            k_1 = 1 / alpha * (vol_t1 - xi_t_AV);
+            k_2 = 1 / alpha * (vol_t1 + 0.5 * Dt * k_1 - xi_t_AV);
+            k_3 = 1 / alpha * (vol_t1 + 0.5 * Dt * k_2 - xi_t_AV);
+            k_4 = 1 / alpha * (vol_t1 + Dt * k_3 - xi_t_AV);
 
-         xi_t_AV += Dt / 6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4);
-         
+            xi_t_AV += Dt / 6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4);
+         } else if (antivar == NO_ANTIVAR) {
+            /* Antivariance should not be applied. */
+            stock_t_AV = stock_t;
+            vol_t_AV = vol_t;
+            xi_t_AV = xi_t;
+         }
+
+         if (stock_t < 0 || stock_t_AV < 0)
+            mexErrMsgTxt("Stock price cannot be negative!");
+         if (vol_t < 0 || vol_t_AV < 0)
+            mexErrMsgTxt("Vol cannot be negative!");
+         if (xi_t < 0 || xi_t_AV < 0)
+            mexErrMsgTxt("Xi cannot be negative!");
+
          /* Compute the mean using a recurring relation. */
          stock_mn[j] +=  (0.5 * (stock_t + stock_t_AV) - stock_mn[j]) / (i + 1);
          vol_mn[j] +=  (0.5 * (vol_t + vol_t_AV) - vol_mn[j]) / (i + 1);
          xi_mn[j] +=  (0.5 * (xi_t + xi_t_AV) - xi_mn[j]) / (i + 1);
       }
    }
-	gsl_rng_free(rng_stock);
-	gsl_rng_free(rng_vol);
 
 	return;
 }
