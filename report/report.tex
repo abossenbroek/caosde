@@ -1,6 +1,8 @@
 \documentclass[a4paper,onecolumn]{IEEEtran}
 \usepackage{amsmath}
 \usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{ctable}
 
 \author{A. Bossenbroek}
 \title{Lab Report Computational Aspects of Stochastic Differential Equations}
@@ -194,15 +196,118 @@ in an algorithm and find solutions.
 Various experiments were conducted by means of computer programs which
 implement the numerical approximations methods discussed in the previous
 section. The first experiments investigate the impact of $p$ and $\alpha$ on
-the behaviour of $S_{0 \leq t < T}$, $E(S_{0 \leq t < T})$ and $E(S_T)$.
+the behaviour of $S_{0 \leq t \leq T}$, $\sigma_{0 \leq t \leq T}$ and
+$\xi_{0 \leq t \leq T}$. 
+
+\newcommand{\stockplotsize}{9cm}
+\ctable[caption={The path of a stock given different $p$ for $\alpha = \{0.1,
+				1, 2\}$},
+		 label={fig:stockpath},
+		 figure]{cc}{\tnote[]{$\quad$In each figure shows six realizations of a stock
+		 path. The path is modeled with the model in equation \eqref{eq:stock}.
+		 The parameters which are equal in each figure are $S_0 = 50$, $\mu =
+		 0.2$, $\xi_0 = 0.2$, $\sigma_0=0.2$, $T=1$ and $\Delta t = 0.0001$. The left
+		 column shows realizations of the path which a different state of the
+		 Mersenne Twister random number generator \cite{matsumoto1998mtd}. The
+		 left column uses state 12 to generate $Z^{(1)}$ and 13 to generate
+		 $Z^{(2)}$. The right column uses state 2 and 3 for both random number
+		 sequences. Each row uses a different $\alpha$ in the mean reverting
+		 term $xi_t$ as defined in equation \eqref{eq:mnrvrt}.\\
+		 $\quad$In the left column the results show that increasing the
+		 diffusion term of the volatility ($p$) leads for all $\alpha$ to a
+		 reduction of the drift of the process. This also holds for the results
+		 in the right column for $p=4$. However only for small time periods ($0.4<t<0.5$
+		 and $(0.75<t<1)$). Furthermore, the right column shows that when $p=2$
+		 the stock has a higher volatility than when $p=0.01$. This in contrast
+		 to the left column. There $p=0.01$ has the highest volatility.
+		 $\quad$The impact of $\alpha$ on the stock process is best seen in the
+		 left column. Increasing $\alpha$ causes the volatility of the stock for
+		 $p= 2, 4$ to augment. However, only marginally in the left column. In
+		 the right column the volatility of the stock process when $p=4$ is
+		 considerable larger at a higher $\alpha$ (compare the three rows at
+		 $0.55<t<0.7$)
+		 }}{\FL
+		 \includegraphics[width=\stockplotsize]{stock_alpha0-1}&
+			\includegraphics[width=\stockplotsize]{stock_s2_alpha0-1}\NN\cmidrule(lr){1-2}
+		 \includegraphics[width=\stockplotsize]{stock_alpha1}&
+			\includegraphics[width=\stockplotsize]{stock_s2_alpha1}\NN\cmidrule(lr){1-2}
+		 \includegraphics[width=\stockplotsize]{stock_alpha2}&
+			\includegraphics[width=\stockplotsize]{stock_s2_a2}\LL
+			}
+		
+\ctable[caption={Several realizations of the stock - and volatility process
+				and $\xi$ for different combinations of $p$ and $\alpha$.},
+		 label={fig:svxpaths},
+		 figure]{cc}{\tnote[]{This figure displays six triples figures showing
+		 30 realizations of the stock path, volatility path and $\xi$ path. The
+		 constant parameters of the model are the same as in figure
+		 \ref{fig:stockpath}. The initial state of the Mersenne Twister random
+		 number generator for $Z^{(1)}$ 1 and 2 for $Z^{(2)}$. From top to bottom the rows have
+		 $p = 0.5, 1$ and $2$. The left and right column have respectively
+		 $\alpha = 0.1$ and $\alpha = 2$.\\
+		 $\quad$Increasing $\alpha$ in the mean reverting term clearly damps
+		 down $\xi_t$. The impact of $\alpha$ on the volatility is less obvious.
+		 The gray line which represents one of the volatility paths in the top
+		 row shows that an increase of $\alpha$ leads to a lower maximum. The
+		 same conclusion can be drawn when looking at the red line which
+		 represents a realization of the volatility in the middle row. Since the
+		 effect on the volatility is marginal, the effect will be even smaller
+		 on the stock price process.\\
+		 $\quad$An increase of $p$ clearly shows that the diffusion of the
+		 volatility and thereby also the stock price. In the bottom row the
+		 volatility process shows very volatile behaviour which is also clearly
+		 recognizable in the stock process. However the impact is not as
+		 significant on each process. The brown stock price realization
+		 oscillates considerably more at a higher $p$, the purple process
+		 however displays behaviour identical to the process in figure
+		 \ref{fig:stockpath}.
+		 }}{\FL
+		 \includegraphics[width=\stockplotsize]{path_s30_a0-1_p0-5}&
+			 \includegraphics[width=\stockplotsize]{path_s30_a2_p0-5}\NN\cmidrule(lr){1-2}
+		 \includegraphics[width=\stockplotsize]{path_s30_a0-1_p1}&
+			 \includegraphics[width=\stockplotsize]{path_s30_a2_p1}\NN\cmidrule(lr){1-2}
+		 \includegraphics[width=\stockplotsize]{path_s30_a0-1_p2}&
+			\includegraphics[width=\stockplotsize]{path_s30_a2_p2}\LL
+			}
+
+\ctable[caption={Box plot of the volatility and stock price at five points in
+				time for various $\alpha$ and $p$.},
+		 figure]{cc}{\tnote[]{$\quad$This figure displays six pairs of box
+		 plots. Each pair consists of a box plot of the stock price at five
+		 points in time and a box plot of the volatility at five points in time.
+		 The constant parameters of the model are the same as in figure
+		 \ref{fig:stockpath}. The initial state of the Mersenne Twister random
+		 number generator for $Z^{(1)}$ 1 and 2 for $Z^{(2)}$. The data is the
+		 same as in figure \ref{fig:svxpaths}. From top to bottom the rows have
+		 $p = 0.5, 1$ and $2$. The left and right column have respectively
+		 $\alpha = 0.1$ and $\alpha = 2$.\\
+		 $\quad$ The red line in each box shows the mean of the data. The bottom
+		 of the box shows the value of the first quartile. The top of the box
+		 shows value of the third quartile. The whiskers display the upper and
+		 lower bound using the interquartile range. The red crosses are
+		 outliers.\\
+		 $\quad$Considering the size of the boxes and the whiskers in the top
+		 row shows that a low diffusion term leads to very few outliers.
+		 Moreover, an increase of $\alpha$ at a $p=0.5$ leads the data to be
+		 less spread (the whiskers are shorter in the right column than in the
+		 left column). Increasing the diffusion term of the volatility leads the
+		 data to be more spread out for both, the stock price and the
+		 volatility. This is best seen in the bottom row where the boxes are
+		 very small and many outliers exist. Lastly, in each volatility plot it
+		 is clear that the mean that most the points are above the mean. This
+		 spread is consistent with a log-normal distribution.}}{\FL
+		 \includegraphics[width=\stockplotsize]{box_s30_a0-1_p0-5}&
+			 \includegraphics[width=\stockplotsize]{box_s30_a2_p0-5}\NN\cmidrule(lr){1-2}
+		 \includegraphics[width=\stockplotsize]{box_s30_a0-1_p1}&
+			 \includegraphics[width=\stockplotsize]{box_s30_a2_p1}\NN\cmidrule(lr){1-2}
+		 \includegraphics[width=\stockplotsize]{box_s30_a0-1_p2}&
+			\includegraphics[width=\stockplotsize]{box_s30_a2_p2}\LL
+			}
 
 
-\section{Click-Fund}
-The Black-Scholes model of a stock price assumes that the drift term $\mu = (r
-- \frac{1}{2}\sigma_t$. 
-
-
-
+\bibliographystyle{IEEEtran}
+\bibliography{report}
+	
 \end{document}
 
-% vim: spell spelllang=en
+% vim: spell spelllang=en:ai

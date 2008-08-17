@@ -52,7 +52,7 @@ ylabel('Volatility');
 % Create subplot
 subplot2 = subplot(2,2,4,'Parent',figure1);
 % Uncomment the following line to preserve the Y-limits of the axes
-ylim([0.10 0.8]);
+ylim([0.10 0.4]);
 box('on');
 hold('all');
 
@@ -76,5 +76,5 @@ annotation(figure1,'textbox', [0.4 0.01584 0.8 0.03464],...
     'LineStyle','none');
 
 if (printFig)
-	print(figure1, '-depsc2', ['s' num2str(samples) '_a' num2str(alpha) '_p' num2str(p) '.eps']);
+	print(figure1, '-depsc2', ['path_s' num2str(samples) '_a' num2str(alpha) '_p' num2str(p) '.eps']);
 end

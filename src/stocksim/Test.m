@@ -1,12 +1,8 @@
 function Test()
 
-for p = 2 : 0.1 : 4
+for p = 0.1 : 0.1 : 2
 	for alpha = 0.01 : 0.1 : 1
-		PlotPaths(2, 10000, 0.0005, 0.2,  50, 0.2, 0.2, p, alpha, 1, 'euler', true); 
-		close all;
-	end
-	for alpha = 1 : 2 : 30 
-		PlotPaths(2, 10000, 0.0005, 0.2,  50, 0.2, 0.2, p, alpha, 1, 'euler', true); 
+		PlotPaths(30, 10000, 0.0005, 0.2,  50, 0.2, 0.2, p, alpha, 1, 'euler', true); 
 		close all;
 	end
 end

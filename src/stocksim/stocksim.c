@@ -10,17 +10,18 @@
 
 #include "numerical.h"
 
-#define  RANDSTATE_IN prhs[0]
-#define  SAMPLES_IN   prhs[1]
-#define  DT_IN	       prhs[2]
-#define  SIGMA0_IN    prhs[3]
-#define  S_0_IN	    prhs[4]
-#define  XI0_IN       prhs[5]
-#define  MU_IN	       prhs[6]
-#define  P_IN	       prhs[7]
-#define  ALPHA_IN     prhs[8]
-#define  T_IN	       prhs[9]
-#define  NUMMETHOD_IN prhs[10]
+#define  RANDSTATE_IN  prhs[0]
+#define  SAMPLES_IN    prhs[1]
+#define  COMPENSATE_IN prhs[2]
+#define  DT_IN	        prhs[3]
+#define  SIGMA0_IN     prhs[4]
+#define  S_0_IN	     prhs[5]
+#define  XI0_IN        prhs[6]
+#define  MU_IN	        prhs[7]
+#define  P_IN	        prhs[8]
+#define  ALPHA_IN      prhs[9]
+#define  T_IN	        prhs[10]
+#define  NUMMETHOD_IN  prhs[11]
 
 #define  STOCKPATHS     plhs[0]
 #define  VOLPATHS       plhs[1]
@@ -37,8 +38,8 @@ enum {
 void 
 stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
       double sigma_0, double S_0, double xi_0, double mu, double p, double
-      alpha, mwSize N, char num_method, double
-      *stock_paths, double *vol_paths, double *xi_paths) 
+      alpha, mwSize N, char num_method, double *stock_paths, double *vol_paths,
+      double *xi_paths) 
 {
    mwSize  i;
    mwSize  j;
@@ -103,6 +104,12 @@ stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
          
          index++;
       }
+      /* To compensate for a coarser grain maybe some additional random numbers
+       * have to be drawn. */
+      for (j = 0; j < compensate; j++) {
+         gsl_ran_gaussian(rng_stock, 1);
+         gsl_ran_gaussian(rng_vol, 1);
+      }
    }
 
 	return;
@@ -112,16 +119,16 @@ stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
 void 
 mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) 
 {
-   mwSize   N;
-   mwSize   samples;
-   double   *stock_paths;
-   double   *vol_paths;
-   double   *xi_paths;
-   char     num_method = NO_METHOD;
+   mwSize             N;
+   mwSize             samples;
+   double             *stock_paths;
+   double             *vol_paths;
+   double             *xi_paths;
+   char               num_method = NO_METHOD;
    gsl_rng				 *rng_stock, *rng_vol;
 	const gsl_rng_type *rng_type;
 
-	if (nrhs != 11) {
+	if (nrhs != 12) {
 		mexErrMsgTxt("Eleven input arguments required.");
 	} else if (nlhs != 3) {
 		mexErrMsgTxt("Three output arguments required."); 
@@ -132,8 +139,9 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
          !mxIsDouble(DT_IN) || !mxIsDouble(SIGMA0_IN) ||
          !mxIsDouble(S_0_IN) || !mxIsDouble(XI0_IN) ||
          !mxIsDouble(MU_IN) || !mxIsDouble(P_IN) ||
+         !mxIsDouble(COMPENSATE_IN) || 
          !mxIsDouble(ALPHA_IN) || !mxIsDouble(T_IN))
-      mexErrMsgTxt("All parameters have to be numbers."); 
+      mexErrMsgTxt("All parameters have to be numbers except num_method."); 
 
    if (!(*mxGetPr(ALPHA_IN) > 0))
       mexErrMsgTxt("alpha must be larger than zero");
@@ -178,10 +186,10 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   
 
    /* Call the worker routine. */
-   stockPath(rng_stock, rng_vol, samples, *mxGetPr(DT_IN),
-         *mxGetPr(SIGMA0_IN), *mxGetPr(S_0_IN), *mxGetPr(XI0_IN),
-         *mxGetPr(MU_IN), *mxGetPr(P_IN), *mxGetPr(ALPHA_IN), N,
-         num_method, stock_paths, vol_paths, xi_paths);
+   stockPath(rng_stock, rng_vol, samples, lround(*mxGetPr(COMPENSATE_IN)),
+         *mxGetPr(DT_IN), *mxGetPr(SIGMA0_IN), *mxGetPr(S_0_IN),
+         *mxGetPr(XI0_IN), *mxGetPr(MU_IN), *mxGetPr(P_IN), *mxGetPr(ALPHA_IN),
+         N, num_method, stock_paths, vol_paths, xi_paths);
 	gsl_rng_free(rng_stock);
 	gsl_rng_free(rng_vol);
 }

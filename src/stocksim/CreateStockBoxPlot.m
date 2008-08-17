@@ -52,5 +52,5 @@ annotation(figure1,'textbox', [0.4 0.01584 0.8 0.03464],...
     'LineStyle','none');
 
 if (printFig)
-	print(figure1, '-depsc2', ['s' num2str(samples) '_a' num2str(alpha) '_p' num2str(p) '.eps']);
+	print(figure1, '-depsc2', ['box_s' num2str(samples) '_a' num2str(alpha) '_p' num2str(p) '.eps']);
 end
