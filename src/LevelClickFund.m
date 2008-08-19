@@ -1,12 +1,24 @@
-function valueAtT = LevelClickFund(T0, T, dt, p, alpha, method, S0, ...
-	sigma, r, initialStocks, level)
+function valueAtT = LevelClickFund(T0, T, dt, method, ...
+	sigmaPath, r, initialStocks, level, stockPath)
 
 N = (T - T0) / dt;
 
-randn('state', 1);
+if N ~= length(stockPath)
+	ME = MException('LevelClickFund:FewShares', ...
+		'Too points in the stock path');
+	throw(ME);
+end
 
-walk1 = randn(N);
-walk2 = randn(N);
+if N ~= length(sigmaPath)
+	ME = MException('LevelClickFund:FewShares', ...
+		'Too points in the vol path');
+	throw(ME);
+end
+
+
+S0 = stockPath(1);
+
+randn('state', 1);
 
 fund = Portfolio;
 fund.numberOfOptions = initialStocks;
@@ -16,20 +28,18 @@ fund.level = level;
 
 if strcmp(method, 'BS')
 	% Compute the initial value of the fund.
-	fund.value = initialStocks * S0 + BlackScholes(S0, sigma, 5, ...
+	fund.value = initialStocks * S0 + BlackScholes(S0, sigmaPath(i), 5, ...
 		S0, r, 'put');
-	% Generate a stock path using the standard Black-Scholes model.
-	stock = BlackScholesStock(r, dt, T0, T, sigma, walk1, S0);
 
 	for i = 1 : N
 		if (fund.lastStockPrice * (1 + fund.level)) < stock(i)
 			% Compute the profit we can make by selling the current options. 
 			currentOptionsValue = fund.numberOfOptions * ...
-				BlackScholes(fund.lastStockPrice, sigma, 5 - fund.lastChange, ...
+				BlackScholes(fund.lastStockPrice, sigmaPath(i), 5 - fund.lastChange, ...
 				fund.lastStockPrice, r, 'put');
 
 			% Compute the price of options which will have to be bought.
-			newOptionPrice = BlackScholes(stock(i), sigma, 5 - i * dt, ...
+			newOptionPrice = BlackScholes(stock(i), sigmaPath(i), 5 - i * dt, ...
 				stock(i), r, 'put');
 
 			% Using this price we can compute the number of options which have to
@@ -59,7 +69,7 @@ if strcmp(method, 'BS')
 		end
 
 		valueAtT =fund.numberOfOptions * ...
-				BlackScholes(fund.lastStockPrice, sigma, 5 - fund.lastChange, ...
+				BlackScholes(fund.lastStockPrice, sigmaPath(i), 5 - fund.lastChange, ...
 				fund.lastStockPrice, r, 'put') + stock(i) * fund.numberOfStocks;
  
 	end

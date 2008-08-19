@@ -1,8 +1,10 @@
-\documentclass[a4paper,onecolumn,draft]{IEEEtran}
+%\documentclass[a4paper,onecolumn,draft]{IEEEtran}
+\documentclass[a4paper,onecolumn]{IEEEtran}
 \usepackage{amsmath}
 \usepackage[english]{babel}
 \usepackage{graphicx}
 \usepackage{ctable}
+\usepackage{url}
 
 \author{A. Bossenbroek}
 \title{Lab Report Computational Aspects of Stochastic Differential Equations}
@@ -197,21 +199,9 @@ Various experiments were conducted by means of computer programs which
 implement the numerical approximations methods discussed in the previous
 section. The first experiments investigate the impact of $p$ and $\alpha$ on
 the behaviour of $S_{0 \leq t \leq T}$, $\sigma_{0 \leq t \leq T}$ and
-$\xi_{0 \leq t \leq T}$. 
-
-\subsection{Strong Convergence}
-Through experiments the order of strong convergence is sought.
-
-
-To find the strong order of a numerical method the absolute error, $\epsilon = \sum_{i =
-1}^N (S_T - y_T^h)$, is first fitted on a model $\epsilon = h^\gamma$.  To
-achieve this a least square fit is performed on the model $\log(\epsilon) =
-\widetilde{\gamma}\cdot\log(h)$.  The resulting $\widetilde{\gamma}$ is an
-estimate of the order of the strong convergence of the numerical method. Using
-the estimated $\widetilde{\gamma}$ a fit is performed on the equation
-$\epsilon = a\cdot h^{\widetilde{\gamma}}$ to find $a$. Depending on the
-residual standard error of the fit it can be concluded that the model with the
-parameters $a$ and $\widetilde{\gamma}$ is an acceptable approximation.
+$\xi_{0 \leq t \leq T}$. The second investigates the order of strong order of
+convergence of each method. The last experiments are conducted to observe the
+weak order of convergence.
 
 \newcommand{\stockplotsize}{9cm}
 \ctable[caption={The path of a stock given different $p$ for $\alpha = \{0.1,
@@ -226,7 +216,7 @@ parameters $a$ and $\widetilde{\gamma}$ is an acceptable approximation.
 		 left column uses state 12 to generate $Z^{(1)}$ and 13 to generate
 		 $Z^{(2)}$. The right column uses state 2 and 3 for both random number
 		 sequences. Each row uses a different $\alpha$ in the mean reverting
-		 term $xi_t$ as defined in equation \eqref{eq:mnrvrt}.\\
+		 term $\xi_t$ as defined in equation \eqref{eq:mnrvrt}.\\
 		 $\quad$In the left column the results show that increasing the
 		 diffusion term of the volatility ($p$) leads for all $\alpha$ to a
 		 reduction of the drift of the process. This also holds for the results
@@ -250,16 +240,16 @@ parameters $a$ and $\widetilde{\gamma}$ is an acceptable approximation.
 			}
 		
 \ctable[caption={Several realizations of the stock - and volatility process
-				and $\xi$ for different combinations of $p$ and $\alpha$.},
+				and $\xi_t$ for different combinations of $p$ and $\alpha$.},
 		 label={fig:svxpaths},
 		 figure]{cc}{\tnote[]{This figure displays six triples figures showing
-		 30 realizations of the stock path, volatility path and $\xi$ path. The
+		 30 realizations of the stock path, volatility path and $\xi_t$ path. The
 		 constant parameters of the model are the same as in figure
 		 \ref{fig:stockpath}. The initial state of the Mersenne Twister random
 		 number generator for $Z^{(1)}$ 1 and 2 for $Z^{(2)}$. From top to bottom the rows have
 		 $p = 0.5, 1$ and $2$. The left and right column have respectively
 		 $\alpha = 0.1$ and $\alpha = 2$.\\
-		 $\quad$Increasing $\alpha$ in the mean reverting term clearly damps
+		 $\quad$Increasing $\alpha$ in the mean reverting term damps
 		 down $\xi_t$. The impact of $\alpha$ on the volatility is less obvious.
 		 The gray line which represents one of the volatility paths in the top
 		 row shows that an increase of $\alpha$ leads to a lower maximum. The
@@ -267,9 +257,9 @@ parameters $a$ and $\widetilde{\gamma}$ is an acceptable approximation.
 		 represents a realization of the volatility in the middle row. Since the
 		 effect on the volatility is marginal, the effect will be even smaller
 		 on the stock price process.\\
-		 $\quad$An increase of $p$ clearly shows that the diffusion of the
+		 $\quad$An increase of $p$ shows that the diffusion of the
 		 volatility and thereby also the stock price. In the bottom row the
-		 volatility process shows very volatile behaviour which is also clearly
+		 volatility process shows very volatile behaviour which is also 
 		 recognizable in the stock process. However the impact is not as
 		 significant on each process. The brown stock price realization
 		 oscillates considerably more at a higher $p$, the purple process
@@ -286,6 +276,7 @@ parameters $a$ and $\widetilde{\gamma}$ is an acceptable approximation.
 
 \ctable[caption={Box plot of the volatility and stock price at five points in
 				time for various $\alpha$ and $p$.},
+		 label={fig:box},
 		 figure]{cc}{\tnote[]{$\quad$This figure displays six pairs of box
 		 plots. Each pair consists of a box plot of the stock price at five
 		 points in time and a box plot of the volatility at five points in time.
@@ -318,88 +309,202 @@ parameters $a$ and $\widetilde{\gamma}$ is an acceptable approximation.
 			\includegraphics[width=\stockplotsize]{box_s30_a2_p2}\LL
 			}
 
-\ctable[caption={Absolute approximation error of the Euler method},
-		label={tab:eul}]{ll*{7}{c}l}{}{\FL
-			\multicolumn{2}{c}{Random number}&\multicolumn{7}{c}{$\Delta
-			t$}&\multicolumn{1}{c}{Fit}\NN\cmidrule(lr){3-9}
-		\multicolumn{2}{c}{generator}&0.0002&0.0005&0.0008&0.001&0.002&0.005&0.008&\ML
-		MT with seed&4357&0.0288&0.0570&0.0766&0.0862&0.1247&0.2021&0.2522&
-			$\epsilon(h) \approx 36.44 h^{0.5747 - 0.6045}$\NN\cmidrule(lr){2-10}
-		            &5489&0.0287&0.0571&0.0755&0.0854&0.1232&0.1978&0.2554&
-			$\epsilon(h) \approx 2.792 h^{1/2}$\NN\cmidrule(lr){2-10}
-                  &3&0.0284&0.0571&0.0751&0.0855&0.1248&0.1974&0.2506&
-			$\epsilon(h) \approx 2.769 h^{1/2}$ \NN\cmidrule{1-10} 
-		Rand with seed&4357&0.0286&0.0566&0.0746&0.0856&0.1233&0.1973&0.2512&
-			$\epsilon(h) \approx 2.767 h^{1/2}$\NN\cmidrule(lr){2-10}
-		              &5489&0.0282&0.0579&0.0758&0.0862&0.1253&0.1984&0.2515&
-			$\epsilon(h) \approx 2.782 h^{1/2}$\NN\cmidrule(lr){2-10}
-		              &3&0.0290&0.0576&0.0769&0.0859&0.1256&0.2000&0.2553&
-			$\epsilon(h) \approx 2.810 h^{1/2}$
+
+\subsection{Process Behaviour}
+In the stock price model which is central to this work the drift term of the
+stock is $\mu$ and the diffusion term $\sigma_t$ is modeled as a stochastic
+process. The diffusion term consists of a diffusion term which is dependent on
+the mean of the process, $\xi_t$, and the diffusion $p$. The mean reverting
+term $\xi_t$ includes a `smoothing' term $\alpha$. Two separate experiments
+are run to study how the stock, volatility and mean reverting processes are
+influenced by $\alpha$ and $p$. The first experiment is conducted to show the
+impact of both parameters on a single stock process. The second demonstrates
+how not only the stock process is influenced but also the two other processes.
+Furthermore, the second study investigates several processes which permits to
+draw more general conclusions.
+
+The impact of $\alpha$ and $p$ on one realization of stock path is displayed
+in figure \ref{fig:stockpath}. In each column a stock process is shown which has
+the same sequence of normally distributed random number $Z^{(1)}_{1\leq t\leq
+N}$ and $Z^{(2)}_{1\leq t\leq N}$. The difference is that each process has
+different values for the two parameters which effect are being investigated.
+From the figure can be concluded that an increase of the diffusion of the
+volatility does not lead to an increase of the volatility of the stock
+(volatility in the statistical sense and not in the sense of the model).
+Comparing the movement of the stock process at a small $\alpha$ leads clearly
+to less `spiky' paths. Especially the paths with a high diffusion term in the
+volatility are more likely to smoothen when $\alpha$ decreases. We argue that
+this is due to the fact that whenever $p$ is low the mean reverting term
+$\xi_t$ remains constant and therefore the volatility remains also more
+constant (note, $p$ is low). This leads the stock process to change only
+marginally when $\alpha$ changes.
+
+The figure also shows that the influence of the parameters is not the same for
+all stock processes; the left process appears to converge to a process which
+is mainly driven by drift whereas the right process looses its volatility only
+locally.  However, also in the right figure increasing $p$ leads the process
+to follow the drift more (compare with the processes with a low $p$ which
+decrease over time instead of drifting upwards).
+
+As discussed the impact of $\alpha$ and $p$ on the path of process is very
+dependent on the sequence of random numbers with which the stock - and the
+volatility path are generated. We argue that to be able to reason more in
+general more realizations are needed. In figure \ref{fig:svxpaths} six triples
+of a stock -, volatility and $\xi_t$ path are displayed for 30 processes. From
+the figures which display the path of $\xi_t$ it becomes evident that always
+reduces the diffusion of the mean reverting term. There is however no
+considerable impact on the stock price. The behaviour of the stock price
+changes considerably when $p$ is increased. An increase of this diffusion term
+can lead to erratic movement of the volatility and thereby provoke stock
+prices to be very volatile.
+
+The values of the volatility - and the stock process are indexed at five
+points in time. These values are grouped to construct box plots as shown in
+figure \ref{fig:box}. These figures show that at a low $p$ most values can be
+grouped in the second and third quartile and that few outliers exist. This is
+in stark contrast to the case where $p$ is relatively high. Here the
+difference between the second and third quartile is much smaller (the box is
+smaller) and the many outliers exist (red crosses). This confirms the
+statement we made in the previous paragraph. Furthermore, the plots of the
+stock price show that the spread increases over time. This in contrast to the
+volatility which remains more less constant. We argue that this is caused by
+the mean reverting term. Although it was not obvious in figure
+\ref{fig:stockpath} or \ref{fig:svxpaths} the average stock price follows the
+drift term $\mu$ (see the red lines in the boxes).
+
+
+\subsection{Strong Convergence}
+Through experiments the order of strong convergence is sought. The three
+numerical methods are implemented and tested with several step sizes. The
+strong order order of convergence is defined as:
+\begin{equation}\label{eq:strng}
+\lim_{h\rightarrow 0}(S_T - y_T^h) = O(h^\gamma)
+\end{equation}
+where $S_T$ is the analytic solution and $y_T^h$ is the approximation using
+step size $h$. Since no analytical solution is at hand the value for $S_T$ is
+approximated by using the numerical method with an infinitesimal step size of
+$h = 0.0001$. To test the convergence each method is tested with the step
+sizes  $h =$ 0.0002, 0.0005, 0.0008, 0.001, 0.002, 0.005, 0.008, 0.01, 0.02,
+0.05 and 0.1. The last step sizes are essential if correct fits are to be
+made. This because every method is reasonable accurate at small step sizes but
+at larger step sizes the difference becomes more obvious.
+
+To generate each path of $S_T$ and $y_T^h$ a sequence of random numbers is
+required ($Z^{(1)}_{1\leq i \leq N}$ and $Z^{(2)}_{1\leq i \leq N}$). These
+sequences are generated using a random number generator with a certain initial
+state.  The influence of the random number generator and initial state is
+assessed by running each experiment with two different random number
+generators. Each random number generator is tested with three states. The
+random number generators used in the experiments are the Mersenne Twister
+\cite{matsumoto1998mtd} and BSD rand (part of the early BSD Unix operating
+systems). The first has as period of $2^{19937} - 1$ \cite{Galassi:2006:GSL}.
+This in contrast to the second which has a period of $2^{32}$ [ibid.].
+Motivated by the initial seeds used by default in the current and previous
+Mersenne-Twister generator implementations the three initial states 4357, 5489
+and 1 are tested [ibid.].
+
+\ctable[caption={The fitted models of the strong order of convergence},
+		 label={tab:str}]{*{8}{l}}{}{\FL
+		 \multicolumn{1}{c}{Random number}&&
+			\multicolumn{2}{c}{Euler}&
+			\multicolumn{2}{c}{Milstein}&
+			\multicolumn{2}{c}{Runge-Kutta}
+			\NN\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state}&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}
+			&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}\ML
+		 MT&4357&0.484&2.61&0.510&1.44&0.433&0.906\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		   &5489&0.508&2.91&0.507&1.44&0.442&0.946\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+			&3&0.496&2.74&0.515&1.49&0.445&0.958\NN
+				\cmidrule(lr){1-8}
+		 Rand&4357&0.504&2.859&0.518&1.49&0.452&0.993\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		   &5489&0.490&2.672&0.510&1.43&0.440&0.934\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+			&3&0.493&2.74&0.511&1.47&0.447&0.973
 			\LL
-		}
+			}
 
-\ctable[caption={Absolute approximation error of the Milstein method},
-		label={tab:eul}]{ll*{7}{c}l}{}{\FL
-		\multicolumn{2}{c}{Random number}&\multicolumn{7}{c}{$\Delta
-			t$}&\multicolumn{1}{c}{Fit}\NN\cmidrule(lr){3-9}
-		\multicolumn{2}{c}{generator}&0.0002&0.0005&0.0008&0.001&0.002&0.005&0.008&\ML
-		MT with seed &4357&0.0141&0.0280&0.0376&0.0424&0.0613&0.0993&0.1247&
-			$\epsilon(h) \approx 17.97 h$\NN\cmidrule(lr){2-10}
-						 &5489&0.0141&0.0281&0.0371&0.0420&0.0606&0.0976&0.1261&
-			$\epsilon(h) \approx 17.98h$\NN\cmidrule(lr){2-10}
-						&3&0.0140&0.0280&0.0370&0.0421&0.0614&0.0974&0.1240&
-			$\epsilon(h) \approx 17.80 h$ \NN\cmidrule{1-10} 
-		Rand with seed&4357&0.0141&0.0278&0.0367&0.0421&0.0607&0.0973&0.1240&
-			$\epsilon(h) \approx 17.79 h$\NN\cmidrule(lr){2-10}
-						  &5489&0.0139&0.0285&0.0373&0.0424&0.0617&0.0978&0.1241&
-			$\epsilon(h) \approx 17.85 h$\NN\cmidrule(lr){2-10}
-		              &3&0.0142&0.0283&0.0377&0.0421&0.0617&0.0982&0.1256&
-			$\epsilon(h) \approx 18.00 h$
+To find the strong order of a numerical method the absolute error, the
+absolute error is defined as $\epsilon = \sum_{i = 1}^N (S_T - y_T^h)$, is
+fitted on a model $\epsilon = a \cdot h^{\widetilde{\gamma}}$. Since this
+equation is non linear a constraint minimization algorithm\footnote{The Matlab
+{\tt fmincon} function is used. See
+\url{http://www.mathworks.com/access/helpdesk/help/toolbox/optim/index.html}}
+is used to find the values of $a$ and $\widetilde{\gamma}$. A summary of the
+results is displayed in table \ref{tab:str}. From the results is clear that
+the best approximation can be achieved with the Milstein method. The worst
+results are surprisingly found using the Runge-Kutta method.
+
+No clear evidence is available that the Mersenne Twister generator results in
+better approximations than the BSD rand. For the Mersenne Twister there is no
+obvious proof that a initial state should be preferred over the other. This is
+not the case for the BSD rand generator. The quality of the approximation
+found with initial state 4357 is better than the two others and the
+approximation with state 3 is better than 5489. We argue that this shows that
+the quality of the generator is not fit for the approximation of stochastic
+differential equations since it can lead to distorted results.
+
+\ctable[caption={The fitted models of the weak order of convergence with
+	respect to $g(x)=x$ (the mean)},
+		 label={tab:weak1}]{*{8}{l}}{}{\FL
+		 \multicolumn{1}{c}{Random number}&&
+			\multicolumn{2}{c}{Euler}&
+			\multicolumn{2}{c}{Milstein}&
+			\multicolumn{2}{c}{Runge-Kutta}
+			\NN\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}
+			&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}\ML
+		 MT&4357&1.059&1.310&1.154&1.578&1.140&1.558\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		   &5489&1.048&1.243&1.004&1.119&0.972&1.068\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+			&3&1.176&2.100&1.086&1.559&1.070&1.462
 			\LL
-		}
+			}
 
-
-\ctable[caption={Absolute approximation error of the Runge-Kutta method},
-		label={tab:eul}]{ll*{7}{c}l}{}{\FL
-		\multicolumn{2}{c}{Random number}&\multicolumn{7}{c}{$\Delta
-			t$}&\multicolumn{1}{c}{Fit}\NN\cmidrule(lr){3-9}
-		\multicolumn{2}{c}{generator}&0.0002&0.0005&0.0008&0.001&0.002&0.005&0.008&\ML
-		MT with seed&4357&0.0139&0.0274&0.0365&0.0411&0.0586&0.0924&0.1137&
-			$\epsilon(h) \approx 16.60 h$\NN\cmidrule(lr){2-10}
-		            &5489&0.0139&0.0274&0.0361&0.0407&0.0579&0.0908&0.1150&
-			$\epsilon(h) \approx 16.60h$\NN\cmidrule(lr){2-10}
-		            &3&0.0138&0.0274&0.0359&0.0407&0.0587&0.0905&0.1131&
-			$\epsilon(h) \approx 16.44 h$ \NN\cmidrule{1-10} 
-		Rand with seed&4357&0.0139&0.0272&0.0356&0.0408&0.0580&0.0905&0.1131&
-			$\epsilon(h) \approx 16.41 h$\NN\cmidrule(lr){2-10}
-		              &5489&0.0137&0.0279&0.0362&0.0411&0.0589&0.0909&0.1131&
-			$\epsilon(h) \approx 16.48 h$\NN\cmidrule(lr){2-10}
-		              &3&0.0140&0.0276&0.0366&0.0408&0.0589&0.0913&0.1146&
-			$\epsilon(h) \approx 16.62 h$
+\ctable[caption={The fitted models of the weak order of convergence with
+	respect to $g(x)=x^2$ ($Var(X)$)},
+		 label={tab:weak2}]{*{8}{l}}{}{\FL
+		 \multicolumn{1}{c}{Random number}&&
+			\multicolumn{2}{c}{Euler}&
+			\multicolumn{2}{c}{Milstein}&
+			\multicolumn{2}{c}{Runge-Kutta}
+			\NN\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}
+			&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}\ML
+		 MT&4357&1.022&438.775&1.093&269.790&1.081&262.092\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+		   &5489&1.078&264.641&1.020&234.689&1.012&232.514\NN
+				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+			&3&1.095&329.419&1.051&273.899&1.041&259.522
 			\LL
-		}
+			}
 
+\subsection{Weak Convergence}
+In some applications of stochastic differential equations it can be of more
+importance to have an accurate approximation of a moment. An approximation is
+said to converge in the weak sense if:
+\begin{equation}\label{eq:weak}
+\lvert \mathbf{E}(g(X_T)) - \mathbf{E}(g(y_T^h))\rvert =O(h^\beta)
+\end{equation}
+where $g(x)$ is a polynomial. To find the weak order of convergence of each
+numerical method we proceed the same way as for the strong convergence. The
+approximation of \eqref{eq:weak} is computed as:
+\begin{equation}
+\epsilon = \left\lvert \frac{1}{n}\sum_{i = 1}^n g(S_T) - \frac{1}{n}\sum_{i = 1}^n
+g(y_T^h)\right\rvert
+\end{equation}
+for some polynomial $g(x)$. We can fit the $\epsilon$ on $h$ as with the
+strong convergence and thereby find the weak order of convergence.
 
-\ctable[caption={Graphical representation of the absolute approximation error
-				of the Euler method},
-		 figure,
-		 label={fig:eul}]{c}{}{\FL
-		 \includegraphics[width=7cm]{abs_error_euler}
-		 \LL}
+The results of the fit are summarized in table \ref{tab:weak1} for the weak
+convergence in the mean and in table \ref{tab:weak2} for the convergence in
+the variance. The results in both tables show that all the methods
+are approximately equally accurate; all methods have a order of convergence
+of approximately one.
 
-\ctable[caption={Graphical representation of the absolute approximation error
-				of the Milstein method},
-		 figure,
-		 label={fig:mil}]{c}{}{\FL
-		 \includegraphics[width=7cm]{abs_error_milstein}
-		 \LL}
-
-\ctable[caption={Graphical representation of the absolute approximation error
-				of the Runge-Kutta method},
-		 figure,
-		 label={fig:rk}]{c}{}{\FL
-		 \includegraphics[width=7cm]{abs_error_rk}
-		 \LL}
 
 \bibliographystyle{IEEEtran}
 \bibliography{report}
