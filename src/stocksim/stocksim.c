@@ -12,16 +12,15 @@
 
 #define  RANDSTATE_IN  prhs[0]
 #define  SAMPLES_IN    prhs[1]
-#define  COMPENSATE_IN prhs[2]
-#define  DT_IN	        prhs[3]
-#define  SIGMA0_IN     prhs[4]
-#define  S_0_IN	     prhs[5]
-#define  XI0_IN        prhs[6]
-#define  MU_IN	        prhs[7]
-#define  P_IN	        prhs[8]
-#define  ALPHA_IN      prhs[9]
-#define  T_IN	        prhs[10]
-#define  NUMMETHOD_IN  prhs[11]
+#define  DT_IN	        prhs[2]
+#define  SIGMA0_IN     prhs[3]
+#define  S_0_IN	     prhs[4]
+#define  XI0_IN        prhs[5]
+#define  MU_IN	        prhs[6]
+#define  P_IN	        prhs[7]
+#define  ALPHA_IN      prhs[8]
+#define  T_IN	        prhs[9]
+#define  NUMMETHOD_IN  prhs[10]
 
 #define  STOCKPATHS     plhs[0]
 #define  VOLPATHS       plhs[1]
@@ -104,12 +103,6 @@ stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
          
          index++;
       }
-      /* To compensate for a coarser grain maybe some additional random numbers
-       * have to be drawn. */
-      for (j = 0; j < compensate; j++) {
-         gsl_ran_gaussian(rng_stock, 1);
-         gsl_ran_gaussian(rng_vol, 1);
-      }
    }
 
 	return;
@@ -128,7 +121,7 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
    gsl_rng				 *rng_stock, *rng_vol;
 	const gsl_rng_type *rng_type;
 
-	if (nrhs != 12) {
+	if (nrhs != 11) {
 		mexErrMsgTxt("Eleven input arguments required.");
 	} else if (nlhs != 3) {
 		mexErrMsgTxt("Three output arguments required."); 
@@ -139,7 +132,6 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
          !mxIsDouble(DT_IN) || !mxIsDouble(SIGMA0_IN) ||
          !mxIsDouble(S_0_IN) || !mxIsDouble(XI0_IN) ||
          !mxIsDouble(MU_IN) || !mxIsDouble(P_IN) ||
-         !mxIsDouble(COMPENSATE_IN) || 
          !mxIsDouble(ALPHA_IN) || !mxIsDouble(T_IN))
       mexErrMsgTxt("All parameters have to be numbers except num_method."); 
 
@@ -183,13 +175,11 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
    /* Initialize the state of the random number generator. */
    gsl_rng_set(rng_stock, *mxGetPr(RANDSTATE_IN));
    gsl_rng_set(rng_vol, *mxGetPr(RANDSTATE_IN) + 1);
-  
 
    /* Call the worker routine. */
-   stockPath(rng_stock, rng_vol, samples, lround(*mxGetPr(COMPENSATE_IN)),
-         *mxGetPr(DT_IN), *mxGetPr(SIGMA0_IN), *mxGetPr(S_0_IN),
-         *mxGetPr(XI0_IN), *mxGetPr(MU_IN), *mxGetPr(P_IN), *mxGetPr(ALPHA_IN),
-         N, num_method, stock_paths, vol_paths, xi_paths);
+   stockPath(rng_stock, rng_vol, samples, *mxGetPr(DT_IN), *mxGetPr(SIGMA0_IN),
+         *mxGetPr(S_0_IN), *mxGetPr(XI0_IN), *mxGetPr(MU_IN), *mxGetPr(P_IN),
+         *mxGetPr(ALPHA_IN), N, num_method, stock_paths, vol_paths, xi_paths);
 	gsl_rng_free(rng_stock);
 	gsl_rng_free(rng_vol);
 }

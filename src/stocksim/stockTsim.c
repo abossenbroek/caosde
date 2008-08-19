@@ -10,17 +10,19 @@
 
 #include "numerical.h"
    
-#define  RANDSTATE_IN prhs[0]
-#define  SAMPLES_IN   prhs[1]
-#define  DT_IN	       prhs[2]
-#define  SIGMA0_IN    prhs[3]
-#define  S_0_IN	    prhs[4]
-#define  XI0_IN       prhs[5]
-#define  MU_IN	       prhs[6]
-#define  P_IN	       prhs[7]
-#define  ALPHA_IN     prhs[8]
-#define  T_IN	       prhs[9]
-#define  NUMMETHOD_IN prhs[10]
+#define  STOCK_SEED_IN prhs[0]
+#define  VOL_SEED_IN   prhs[1]
+#define  SAMPLES_IN    prhs[2]
+#define  STEP_IN       prhs[3]
+#define  DT_IN	        prhs[4]
+#define  SIGMA0_IN     prhs[5]
+#define  S_0_IN	     prhs[6]
+#define  XI0_IN        prhs[7]
+#define  MU_IN	        prhs[8]
+#define  P_IN	        prhs[9]
+#define  ALPHA_IN      prhs[10]
+#define  T_IN	        prhs[11]
+#define  NUMMETHOD_IN  prhs[12]
 
 #define  STOCK_T      plhs[0]
 
@@ -33,12 +35,13 @@ enum {
 
 /* The worker routine. */
 void 
-stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
-      double sigma_0, double S_0, double xi_0, double mu, double p, double
-      alpha, mwSize N, char num_method, double *stock_T)
+stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, mwSize step,
+      double Dt, double sigma_0, double S_0, double xi_0, double mu, double p,
+      double alpha, mwSize N, char num_method, double *stock_T)
 {
    mwSize  i;
    mwSize  j;
+   mwSize  l;
    double  phi_stock;
    double  phi_vol;
    double  k_1, k_2, k_3, k_4;
@@ -70,14 +73,22 @@ stockPath(gsl_rng *rng_stock, gsl_rng *rng_vol, mwSize samples, double Dt,
       stock_t = S_0;
       vol_t = sigma_0;
       xi_t = xi_0;
-
       /* Generate the rest of the path. */
-      for (j = 1; j < N; j++) {
-	      phi_stock = gsl_ran_gaussian(rng_stock, 1) * sqrt(Dt);
-	      phi_vol = gsl_ran_gaussian(rng_vol, 1) * sqrt(Dt);
+      for (j = 0; j < N; j++) {
+         phi_stock = gsl_ran_gaussian(rng_stock, 1);
+         phi_vol = gsl_ran_gaussian(rng_vol, 1);
+         
+         for (l = 1; l < step; l++) {
+            phi_stock += gsl_ran_gaussian(rng_stock, 1);
+            phi_vol += gsl_ran_gaussian(rng_vol, 1);
+         }
+
+	      phi_stock *= sqrt(Dt / (double)step);
+	      phi_vol *= sqrt(Dt / (double)step);
 
          /* Compute the integral of the stock using the numerical method. */
          stock_t = num_method_stock(stock_t, vol_t, mu, Dt, phi_stock);
+         
          /* Compute the integral of the volatility using the numerical method.
           * Store the current value of the volatility to use for the
           * approximation of xi. */
@@ -110,14 +121,14 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
    gsl_rng				 *rng_stock, *rng_vol;
 	const gsl_rng_type *rng_type;
 
-	if (nrhs != 11) {
-		mexErrMsgTxt("Eleven input arguments required.");
+	if (nrhs != 13) {
+		mexErrMsgTxt("Thirteen input arguments required.");
 	} else if (nlhs != 1) {
-		mexErrMsgTxt("Three output arguments required."); 
+		mexErrMsgTxt("One output argument required."); 
    } 
 
    /* Determine if all the parameters are the proper type. */
-   if (!mxIsDouble(RANDSTATE_IN) || !mxIsDouble(SAMPLES_IN) ||
+   if (!mxIsDouble(STEP_IN) || !mxIsDouble(SAMPLES_IN) ||
          !mxIsDouble(DT_IN) || !mxIsDouble(SIGMA0_IN) ||
          !mxIsDouble(S_0_IN) || !mxIsDouble(XI0_IN) ||
          !mxIsDouble(MU_IN) || !mxIsDouble(P_IN) ||
@@ -151,24 +162,24 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       mexErrMsgTxt("Only 'euler', 'milstein' and 'rk' are implemented");
 
    /* The Mersenne Twister generator should be good enough for our purpose. */
-	rng_type = gsl_rng_mt19937;
+	//rng_type = gsl_rng_mt19937;
+   /* A 'bad' generator. */
+	rng_type = gsl_rng_rand;
 
    /* Create two random number generators. */
 	rng_stock = gsl_rng_alloc(rng_type);
 	rng_vol = gsl_rng_alloc(rng_type);
  
    /* Initialize the state of the random number generator. */
-   gsl_rng_set(rng_stock, *mxGetPr(RANDSTATE_IN));
-   gsl_rng_set(rng_vol, *mxGetPr(RANDSTATE_IN) + 1);
-  
+   gsl_rng_set(rng_stock, *mxGetPr(STOCK_SEED_IN));
+   gsl_rng_set(rng_vol, *mxGetPr(VOL_SEED_IN));
+
 
    /* Call the worker routine. */
-   stockPath(rng_stock, rng_vol, samples, *mxGetPr(DT_IN),
+   stockPath(rng_stock, rng_vol, samples, *mxGetPr(STEP_IN), *mxGetPr(DT_IN),
          *mxGetPr(SIGMA0_IN), *mxGetPr(S_0_IN), *mxGetPr(XI0_IN),
-         *mxGetPr(MU_IN), *mxGetPr(P_IN), *mxGetPr(ALPHA_IN), N,
-         num_method, stock_T);
-	gsl_rng_free(rng_stock);
-	gsl_rng_free(rng_vol);
+         *mxGetPr(MU_IN), *mxGetPr(P_IN), *mxGetPr(ALPHA_IN), N, num_method,
+         stock_T);
 }
 
 /* vim: set et : tw=80 : spell spelllang=en: */
