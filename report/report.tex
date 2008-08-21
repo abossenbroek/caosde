@@ -36,7 +36,7 @@ t$.
 \section{Numerical Methods}
 \subsection{Stock Process}
 To solve the stochastic differential equation (SDE) which models the stock 
-process numerically three numerical methods are used. All methods rely on
+process numerically, three numerical methods are used. All methods rely on
 rewriting the SDE in equation \eqref{eq:stock} to an It\=o process. For this two
 auxiliary functions are introduced 
 \begin{align}\label{eq:abstck}
@@ -199,7 +199,7 @@ Various experiments were conducted by means of computer programs which
 implement the numerical approximations methods discussed in the previous
 section. The first experiments investigate the impact of $p$ and $\alpha$ on
 the behaviour of $S_{0 \leq t \leq T}$, $\sigma_{0 \leq t \leq T}$ and
-$\xi_{0 \leq t \leq T}$. The second investigates the order of strong order of
+$\xi_{0 \leq t \leq T}$. The second investigates the strong of
 convergence of each method. The last experiments are conducted to observe the
 weak order of convergence.
 
@@ -351,8 +351,8 @@ dependent on the sequence of random numbers with which the stock - and the
 volatility path are generated. We argue that to be able to reason more in
 general more realizations are needed. In figure \ref{fig:svxpaths} six triples
 of a stock -, volatility and $\xi_t$ path are displayed for 30 processes. From
-the figures which display the path of $\xi_t$ it becomes evident that always
-reduces the diffusion of the mean reverting term. There is however no
+the figures which display the path of $\xi_t$ it becomes evident that $\alpha$
+always reduces the diffusion of the mean reverting term. There is however no
 considerable impact on the stock price. The behaviour of the stock price
 changes considerably when $p$ is increased. An increase of this diffusion term
 can lead to erratic movement of the volatility and thereby provoke stock
@@ -368,9 +368,10 @@ smaller) and the many outliers exist (red crosses). This confirms the
 statement we made in the previous paragraph. Furthermore, the plots of the
 stock price show that the spread increases over time. This in contrast to the
 volatility which remains more less constant. We argue that this is caused by
-the mean reverting term. Although it was not obvious in figure
+the mean reverting term in the volatility. Although it was not obvious in figure
 \ref{fig:stockpath} or \ref{fig:svxpaths} the average stock price follows the
-drift term $\mu$ (see the red lines in the boxes).
+drift term $\mu$ (see the red lines in the boxes). The volatility remains
+constant over time.
 
 
 \subsection{Strong Convergence}
@@ -401,7 +402,7 @@ systems). The first has as period of $2^{19937} - 1$ \cite{Galassi:2006:GSL}.
 This in contrast to the second which has a period of $2^{32}$ [ibid.].
 Motivated by the initial seeds used by default in the current and previous
 Mersenne-Twister generator implementations the three initial states 4357, 5489
-and 1 are tested [ibid.].
+and 3 are tested [ibid.].
 
 \ctable[caption={The fitted models of the strong order of convergence},
 		 label={tab:str}]{*{8}{l}}{
@@ -625,29 +626,77 @@ option price should compensate the volatility by reducing the price. Thereby
 reducing the number of stocks which have to be sold when rebalancing the fund
 which would permit the profit to be equal to the case with lower volatility.
 
-
+This last statement is better illustrated with figure \ref{fig:lcfl10}  which
+compares the density of the profit of the level-click fund at different
+diffusion terms of the volatility. This figure shows that an increase of the
+diffusion of the volatility causes the density to tend to the initial stock
+price. This shows that the price of the put option does not compensate for the
+increased volatility.
 
 \ctable[caption={Density plot of the profit of a several level-click funds for
 	a Black-Scholes stock},
 		  label={fig:lcfbs},
-		  figure]{c}{}{\FL
+		  figure]{c}{
+		  \tnote[]{
+		  $\quad$The density plot shows the estimation of the probability
+		  density function of the profit of a level-click fund. The plot is
+		  based on a Monte-Carlo simulation of 1500 realizations. In the
+		  simulation the volatility is simulated as a constant thereby adhering
+		  to the so-called Black-Scholes world. The initial quantity of stocks
+		  is 100, the remaining parameters are $r = 5\%$, $S_0 = 50$, $\xi_0 =
+		  0.2$, $\sigma_0 = 0.2$ and $T = 5$. The options are sold at
+		  Black-Scholes price.
+		  $\quad$The initial distribution shows the stock price follows a
+		  log-normal distribution, which agrees with the definition of the stock
+		  process. At low levels the level-click fund causes the profit to rise
+		  overall. Increasing the level provokes the probability density
+		  function to increase around the mode and thereby shows that the
+		  probability to make profit diminishes. The wave-like pattern in the
+		  tail of the density functions is caused by the construction of the
+		  click fund, the probability for profit increases when this profit
+		  can be attained after $n$-clicks.}
+			}{\FL
 		  \includegraphics[width=10cm]{dens_lcp_a02p0}
 		  \LL}
 
 \ctable[caption={Density plot of the profit of a several level-click funds for
 	a stock with a volatility model which has $p = 0.2$ and $\alpha = 0.2$},
 		  label={fig:lcfbs2},
-		  figure]{c}{}{\FL
+		  figure]{c}{\tnote[]{This figure is constructed in the same way as
+		  figure \ref{fig:lcfbs}. The only difference is that in this
+		  Monte-Carlo simulation the volatility is modelled as a stochastic
+		  process with $a = 0.2$ and $p = 0.2 $.}}{\FL
 		  \includegraphics[width=10cm]{dens_lcp_a02p02}
 		  \LL}
 
 \ctable[caption={Density plot of the profit of a several level-click funds for
 	a stock with a volatility model which has $p = 1$ and $\alpha = 0.2$},
 		  label={fig:lcfbs3},
-		  figure]{c}{}{\FL
+		  figure]{c}{\tnote[]{
+		  $\quad$This figure is constructed in the same way as
+		  figure \ref{fig:lcfbs}. The only difference is that in this
+		  Monte-Carlo simulation the volatility is modelled as a stochastic
+		  process with $a = 0.2$ and $p = 1 $.\\
+		  $\quad$Due to the stochastic volatility the performance of the market
+		  is not log-normally distrusted any more. The increase of the diffusion
+		  term of the volatility also causes the deviation of the probability
+		  density functions of the level-click fund profit to diminish. This
+		  shows that an increase of the volatility is not compensated by the
+		  Black-Scholes pricing model and that therefore less profit can be
+		  made.}}{\FL
 		  \includegraphics[width=10cm]{dens_lcp_a02p1}
 		  \LL}
 
+
+\ctable[caption={Density plot of the profit of a level-click fund with
+				$l=10\%$ at several values of the diffusion of volatility},
+		  label={fig:lcfl10},
+		  figure]{c}{\tnote{The probability density functions of a level-click
+		  fund with $l=10\%$ under three different volatility models is shown.
+		  The data is the same as in figure \ref{fig:lcfbs}, \ref{fig:lcfbs2}
+		  and \ref{fig:lcfbs3}.}}{\FL
+		  \includegraphics[width=10cm]{dens_lcp_l10}
+		  \LL}
 
 
 
