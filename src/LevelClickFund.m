@@ -67,9 +67,22 @@ for i = 1 : N
 			fund.lastStockPrice = stockPath(i);
 		end
 
-		valueAtT =fund.numberOfOptions * ...
-			BlackScholes(fund.lastStockPrice, sigmaPath(i), 5 - fund.lastChange, ...
-			fund.lastStockPrice, r, 'put') + stockPath(i) * fund.numberOfStocks;
-
 	end
+	
+if stockPath(i) > fund.lastStockPrice
+	valueAtT = fund.numberOfOptions * ...
+		BlackScholes(fund.lastStockPrice, sigmaPath(i), 5 - fund.lastChange, ...
+		fund.lastStockPrice, r, 'put') + stockPath(i) * fund.numberOfStocks;
+else
+	naked = fund.numberOfOptions - fund.numberOfStocks;
 
+	if naked < 0
+		ME = MException('LevelClickFund:FewShares', ...
+			'Too few shares');
+		throw(ME);
+	end
+	% Execute the options to prevent loss.
+	valueAtT = fund.numberOfOptions * fund.lastStockPrice;
+	% Sell the remaining stocks at lower price.
+	valueAtT = valueAtT + naked * stockPath(i);
+end

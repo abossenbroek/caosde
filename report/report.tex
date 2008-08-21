@@ -404,21 +404,41 @@ Mersenne-Twister generator implementations the three initial states 4357, 5489
 and 1 are tested [ibid.].
 
 \ctable[caption={The fitted models of the strong order of convergence},
-		 label={tab:str}]{*{8}{l}}{}{\FL
+		 label={tab:str}]{*{8}{l}}{
+		 \tnote[1]{The initial state of the random number generator for the
+		 stock - ($Z^{(1)}$) and the volatility process($Z^{(2)}$).}
+		 \tnote[2]{The Mersenne Twister random number generator with a period of
+		 $2^{19937} - 1$.}
+		 \tnote[3]{The BSD Rand random number generator with a period of
+		 $2^{32}$.}
+		 \tnote[]{$\quad$The results were collected using 10000 realizations of both the stock
+		 price and the volatility. The parameters are $S_0 = 50$, $\mu = 0.2$,
+		 $\xi_0 = 0.2$, $\sigma_0 = 0.2$, $T = 1$, $\alpha = 0.2$ and $p = 0.2$.
+		 The model is $\epsilon = a \cdot h^{\gamma}$ where $\epsilon$ is the
+		 absolution approximation error and $h$ the step size used in the
+		 approximation.\\
+		 $\quad$From the results can be concluded that the quality of the approximation
+		 is affected by the choice of the initial state. This shows that the
+		 order of strong convergence is prone to statistical noise. There is no
+		 clear evidence that the use of a random number generator with a larger
+		 period leads to better approximations. Since the strong order of
+		 convergence is the highest for the Milstein scheme this scheme can be
+		 considered as the most accurate.}
+		 }{\FL
 		 \multicolumn{1}{c}{Random number}&&
 			\multicolumn{2}{c}{Euler}&
 			\multicolumn{2}{c}{Milstein}&
 			\multicolumn{2}{c}{Runge-Kutta}
 			\NN\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state}&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}
+		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state\tmark[1]}&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}
 			&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}&\multicolumn{1}{c}{$\gamma$}&\multicolumn{1}{c}{$a$}\ML
-		 MT&4357&0.484&2.61&0.510&1.44&0.433&0.906\NN
+		 MT\tmark[2]&4357&0.484&2.61&0.510&1.44&0.433&0.906\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 		   &5489&0.508&2.91&0.507&1.44&0.442&0.946\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 			&3&0.496&2.74&0.515&1.49&0.445&0.958\NN
 				\cmidrule(lr){1-8}
-		 Rand&4357&0.504&2.859&0.518&1.49&0.452&0.993\NN
+		 Rand\tmark[3]&4357&0.504&2.859&0.518&1.49&0.452&0.993\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 		   &5489&0.490&2.672&0.510&1.43&0.440&0.934\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
@@ -430,7 +450,9 @@ To find the strong order of a numerical method the absolute error, the
 absolute error is defined as $\epsilon = \sum_{i = 1}^N (S_T - y_T^h)$, is
 fitted on a model $\epsilon = a \cdot h^{\widetilde{\gamma}}$. Since this
 equation is non linear a constraint minimization algorithm\footnote{The Matlab
-{\tt fmincon} function is used. See
+{\tt fmincon} function is used to find $\min_{a, \gamma}\left\{\left\lVert \vec{\epsilon}
+- \left(a\cdot \vec{h}^\gamma\right) \right\rVert_2\right\}$ under the constraint $a> 0$ and $\gamma >
+0$. See
 \url{http://www.mathworks.com/access/helpdesk/help/toolbox/optim/index.html}}
 is used to find the values of $a$ and $\widetilde{\gamma}$. A summary of the
 results is displayed in table \ref{tab:str}. From the results is clear that
@@ -442,21 +464,36 @@ better approximations than the BSD rand. For the Mersenne Twister there is no
 obvious proof that a initial state should be preferred over the other. This is
 not the case for the BSD rand generator. The quality of the approximation
 found with initial state 4357 is better than the two others and the
-approximation with state 3 is better than 5489. We argue that this shows that
-the quality of the generator is not fit for the approximation of stochastic
-differential equations since it can lead to distorted results.
+approximation with state 3 is better than 5489. We argue that this behaviour
+demonstrates that the BSD Rand generator is not random enough for consistent
+approximations. This shows us that the choice of the random number generator
+is of importance when approximating a SDE.
 
 \ctable[caption={The fitted models of the weak order of convergence with
 	respect to $g(x)=x$ (the mean)},
-		 label={tab:weak1}]{*{8}{l}}{}{\FL
+		 label={tab:weak1}]{*{8}{l}}{
+		 \tnote[1]{The initial state of the random number generator for the
+		 stock - ($Z^{(1)}$) and the volatility process($Z^{(2)}$).}
+		 \tnote[2]{The Mersenne Twister random number generator with a period of
+		 $2^{19937} - 1$.}
+		 \tnote[]{$\quad$The results were collected using 10000 realizations of both the stock
+		 price and the volatility. The parameters are $S_0 = 50$, $\mu = 0.2$,
+		 $\xi_0 = 0.2$, $\sigma_0 = 0.2$, $T = 1$, $\alpha = 0.2$ and $p = 0.2$.
+		 The model is $\epsilon = a \cdot h^{\beta}$ where $\epsilon$ is the
+		 absolution approximation error and $h$ the step size used in the
+		 approximation.\\
+		 $\quad$The results demonstrate that each numerical method has a weak
+		 order of convergence of approximately 1 with respect to the polynomial
+		 $g(x)=x$. }
+		 }{\FL
 		 \multicolumn{1}{c}{Random number}&&
 			\multicolumn{2}{c}{Euler}&
 			\multicolumn{2}{c}{Milstein}&
 			\multicolumn{2}{c}{Runge-Kutta}
 			\NN\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}
+		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state\tmark[1]}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}
 			&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}\ML
-		 MT&4357&1.059&1.310&1.154&1.578&1.140&1.558\NN
+		 MT\tmark[2]&4357&1.059&1.310&1.154&1.578&1.140&1.558\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 		   &5489&1.048&1.243&1.004&1.119&0.972&1.068\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
@@ -466,15 +503,31 @@ differential equations since it can lead to distorted results.
 
 \ctable[caption={The fitted models of the weak order of convergence with
 	respect to $g(x)=x^2$ ($Var(X)$)},
-		 label={tab:weak2}]{*{8}{l}}{}{\FL
+		 label={tab:weak2}]{*{8}{l}}{
+		 \tnote[1]{The initial state of the random number generator for the
+		 stock - ($Z^{(1)}$) and the volatility process($Z^{(2)}$).}
+		 \tnote[2]{The Mersenne Twister random number generator with a period of
+		 $2^{19937} - 1$.}
+		 \tnote[]{$\quad$The results were collected using 10000 realizations of both the stock
+		 price and the volatility. The parameters are $S_0 = 50$, $\mu = 0.2$,
+		 $\xi_0 = 0.2$, $\sigma_0 = 0.2$, $T = 1$, $\alpha = 0.2$ and $p = 0.2$.
+		 The model is $\epsilon = a \cdot h^{\beta}$ where $\epsilon$ is the
+		 absolution approximation error and $h$ the step size used in the
+		 approximation.\\
+		 $\quad$The results demonstrate that each numerical method has a weak
+		 order of convergence of approximately 1 with respect to the polynomial
+		 $g(x)=x^2$. The Milstein - and Runge-Kutta method have however a
+		 considerable smaller $a$ and offer therefore a higher precision than
+		 the Euler method.}		 	
+			}{\FL
 		 \multicolumn{1}{c}{Random number}&&
 			\multicolumn{2}{c}{Euler}&
 			\multicolumn{2}{c}{Milstein}&
 			\multicolumn{2}{c}{Runge-Kutta}
 			\NN\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}
+		 \multicolumn{1}{c}{generator}&\multicolumn{1}{c}{state\tmark[1]}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}
 			&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}&\multicolumn{1}{c}{$\beta$}&\multicolumn{1}{c}{$a$}\ML
-		 MT&4357&1.022&438.775&1.093&269.790&1.081&262.092\NN
+		 MT\tmark[2]&4357&1.022&438.775&1.093&269.790&1.081&262.092\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 		   &5489&1.078&264.641&1.020&234.689&1.012&232.514\NN
 				\cmidrule(lr){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
@@ -483,27 +536,119 @@ differential equations since it can lead to distorted results.
 			}
 
 \subsection{Weak Convergence}
-In some applications of stochastic differential equations it can be of more
-importance to have an accurate approximation of a moment. An approximation is
-said to converge in the weak sense if:
+In some applications of SDEs it can be sufficient that an approximation is
+accurate for a moment of the stochastic process. The accuracy is quantified as
+the weak order of convergence of a numerical method. An approximation is
+said to converge in the weak sense of order $\beta$ if:
 \begin{equation}\label{eq:weak}
 \lvert \mathbf{E}(g(X_T)) - \mathbf{E}(g(y_T^h))\rvert =O(h^\beta)
 \end{equation}
-where $g(x)$ is a polynomial. To find the weak order of convergence of each
-numerical method we proceed the same way as for the strong convergence. The
-approximation of \eqref{eq:weak} is computed as:
+for some function with polynomial growth $g(x)$. To find the weak order of
+convergence of each numerical method we proceed the same way as for the strong
+convergence. The absolute error in \eqref{eq:weak} is computed as:
 \begin{equation}
 \epsilon = \left\lvert \frac{1}{n}\sum_{i = 1}^n g(S_T) - \frac{1}{n}\sum_{i = 1}^n
-g(y_T^h)\right\rvert
+g(y_T^h)\right\rvert.
 \end{equation}
-for some polynomial $g(x)$. We can fit the $\epsilon$ on $h$ as with the
-strong convergence and thereby find the weak order of convergence.
+We can fit $\epsilon$ on $h$ as with the strong convergence and thereby find
+the weak order of convergence. 
 
 The results of the fit are summarized in table \ref{tab:weak1} for the weak
 convergence in the mean and in table \ref{tab:weak2} for the convergence in
 the variance. The results in both tables show that all the methods
-are approximately equally accurate; all methods have a order of convergence
-of approximately one.
+are approximately equally accurate in terms of the order; all methods have a
+order of convergence of approximately one. If one considers also the
+multiplication factor $a$ then the Euler method is outperformed by the
+Milstein - and Runge-Kutta method for the accuracy of the weak order of
+convergence in the variance since $a$ is considerable smaller for the latter
+two methods than for the former method.
+
+\section{Level-Click Fund}
+A level-click fund is a fund which is constructed by buying a quantity $Q_0$ of
+stocks at price $S_0$ and the same quantity of put options with strike $S_0$
+and expiry $T$ which is the life time of the fund. When during the life time
+of the fund the stock increases a level $l$ above the strike price of the
+options held in the fund the options are sold and new ones are bought with a
+strike equal to the current spot price of the stock. This purchase is financed
+by selling the options held and some stocks. The expiry of the new options is
+set to the end of the life time of the fund. By applying this trading strategy
+the loss becomes limited since all the stocks in the portfolio are covered.
+
+Let $V^i_t$ be the value of options $i$ in the portfolio at time $t$ (note
+that all the options have the same strike price and expiry and have therefore
+the same value). Let $S_t$ be the price of the stock at time $t$, $Q_t$ the
+quantity of stocks in the fund at time $t$ and $P$ the premium of the options
+which have a strike price $K = S_t$. At a point where the portfolio needs to
+be readjusted $\alpha$ options have to be purchased and $\beta$ stocks have to
+be sold to finance the transaction. The following equality must then hold:
+\begin{equation*}
+\alpha P = \beta S_t + Q_t V_t
+\end{equation*}
+since the transaction has to be financed with stocks and the currently held
+options. Since after the purchase less stocks will be in the portfolio only
+$\alpha = Q_t - \beta$ options have to be bought. The previous equation can
+then be rewritten to:
+\begin{equation*}
+\begin{split}
+\alpha  P &= (Q_t - \alpha) S_t + Q_t V_t\\
+\alpha P &= Q_t S_t - \alpha S_t + Q_t V_t\\
+\alpha (P + S_t) &= Q_t (S_t + V_t)\\
+\alpha &= \frac{Q_t(S_t + V_t)}{P + S_t}.
+\end{split}
+\end{equation*}
+This rebalance strategy permits us to simulate the profit of a level-click
+fund given a stock process. 
+
+Through means of Monte-Carlo simulations the profit of a level-click fund was
+analyzed for several parameters of the volatility model. Figure
+\ref{fig:lcfbs} shows a density plot of the profit of the level-click fund for
+several levels. It can be concluded from the figure that for $l = 1\%$, 5\%,
+10\% and 20\% the click fund has a higher profit except for the fat tail. At
+higher levels the density is displaced to $S_0$ (the mode of the density is
+5104.364 for $l= 150\%$ in contrast to 5794.162 for $l=1\%$ or 5632.607 for
+$l=10\%$). Figure \ref{fig:lcfbs2} shows the profit of a level-click fund in a
+worlds where the volatility of a stock is modeled as throughout this work with
+parameters $\alpha = 0.2$ and $p=0.2$. Similar to the results from the former
+figure, this figure shows that the use of a level-click fund with $l \leq
+20\%$ leads to a profit which is always beats the market.
+
+Increasing the diffusion term in the volatility equation leads the
+distribution of the pay off to be more concentrated around the initial stock
+price as displayed in figure \ref{fig:lcfbs3}. Whereas the market had a
+considerable log-normal distribution in the previous two figures, the
+distribution in the current figure is more distorted. The figures show also
+that in a world with a high volatility the level-click fund becomes less
+profitable. We argue that this is caused by the valuation of the option price
+in the current simulation. Since the Black-Scholes formula does not consider
+volatility the put options are overpriced. At a higher volatility the put
+option price should compensate the volatility by reducing the price. Thereby
+reducing the number of stocks which have to be sold when rebalancing the fund
+which would permit the profit to be equal to the case with lower volatility.
+
+
+
+\ctable[caption={Density plot of the profit of a several level-click funds for
+	a Black-Scholes stock},
+		  label={fig:lcfbs},
+		  figure]{c}{}{\FL
+		  \includegraphics[width=10cm]{dens_lcp_a02p0}
+		  \LL}
+
+\ctable[caption={Density plot of the profit of a several level-click funds for
+	a stock with a volatility model which has $p = 0.2$ and $\alpha = 0.2$},
+		  label={fig:lcfbs2},
+		  figure]{c}{}{\FL
+		  \includegraphics[width=10cm]{dens_lcp_a02p02}
+		  \LL}
+
+\ctable[caption={Density plot of the profit of a several level-click funds for
+	a stock with a volatility model which has $p = 1$ and $\alpha = 0.2$},
+		  label={fig:lcfbs3},
+		  figure]{c}{}{\FL
+		  \includegraphics[width=10cm]{dens_lcp_a02p1}
+		  \LL}
+
+
 
 
 \bibliographystyle{IEEEtran}
